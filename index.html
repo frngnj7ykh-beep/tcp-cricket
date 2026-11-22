@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Tamarind Cricket Players (TCP) — Live Cricket Scorer</title>
+  <!-- Firebase v10 Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <style>
-    /* =========================================================================
-       TAMARIND CRICKET PLAYERS (TCP) — DARK BROADCAST THEME
-       100% Self-Contained CSS (Zero External CSS/Icon CDNs)
-       ========================================================================= */
     :root {
       --bg-page: #0b1120;
       --bg-card: #111827;
@@ -37,248 +37,79 @@
       --sky: #38bdf8;
       --sky-bg: rgba(56, 189, 248, 0.16);
       --sky-border: rgba(56, 189, 248, 0.36);
-      --indigo-bg: rgba(99, 102, 241, 0.22);
-      --indigo-text: #a5b4fc;
-      --indigo-border: rgba(129, 140, 248, 0.38);
       --wa-green: #25d366;
       --wa-bubble: #005c4b;
       --wa-bubble-border: #0a725e;
-      --radius-sm: 10px;
       --radius-md: 14px;
       --radius-lg: 18px;
       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
       --shadow-md: 0 10px 26px rgba(0, 0, 0, 0.45);
       --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.65);
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg-page);
       color: var(--text-main);
       min-height: 100vh;
       line-height: 1.4;
-      overscroll-behavior-y: none;
       overflow-x: hidden;
     }
-
-    button, input, select, textarea {
-      font-family: inherit;
-      font-size: inherit;
-      color: inherit;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      background: none;
-      transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
-    }
-
+    button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+    button { cursor: pointer; border: none; background: none; transition: transform 0.1s ease, background-color 0.15s ease, opacity 0.15s ease; }
     button:active:not(:disabled) { transform: scale(0.97); }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
     a { text-decoration: none; color: inherit; }
 
-    /* ==================== STATIC STICKY COMPACT HEADER ==================== */
+    /* Header */
     .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 30;
+      position: sticky; top: 0; z-index: 30;
       background: rgba(11, 17, 32, 0.97);
       border-bottom: 1px solid var(--border);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     }
-
-    .header-inner {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 8px 10px 7px;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-
-    .header-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .brand-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-align: left;
-      min-width: 0;
-      flex-shrink: 1;
-    }
-
+    .header-inner { max-width: 780px; margin: 0 auto; padding: 8px 10px 7px; display: flex; flex-direction: column; gap: 7px; }
+    .header-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .brand-btn { display: flex; align-items: center; gap: 8px; text-align: left; min-width: 0; flex-shrink: 1; }
     .brand-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 9px;
+      width: 32px; height: 32px; border-radius: 9px;
       background: linear-gradient(135deg, #10b981, #047857);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35); flex-shrink: 0;
     }
-
-    .brand-text-col {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .brand-top-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .brand-title {
-      font-weight: 900;
-      font-size: 14.5px;
-      letter-spacing: 0.02em;
-      line-height: 1.05;
-      color: var(--emerald-bright);
-    }
-
-    .brand-sub {
-      font-size: 9.5px;
-      font-weight: 700;
-      color: var(--text-sec);
-      line-height: 1.15;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 1px;
-    }
-
-    .sync-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 9px;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 999px;
-      line-height: 1.2;
-      flex-shrink: 0;
-    }
-
+    .brand-text-col { display: flex; flex-direction: column; min-width: 0; }
+    .brand-top-row { display: flex; align-items: center; gap: 6px; }
+    .brand-title { font-weight: 900; font-size: 14.5px; letter-spacing: 0.02em; line-height: 1.05; color: var(--emerald-bright); }
+    .brand-sub { font-size: 9.5px; font-weight: 700; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+    .sync-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 999px; flex-shrink: 0; }
     .sync-cloud { color: var(--emerald-bright); background: var(--emerald-bg); border: 1px solid var(--emerald-border); }
     .sync-working { color: var(--amber-bright); background: var(--amber-bg); border: 1px solid var(--amber-border); }
     .sync-local { color: var(--sky); background: var(--sky-bg); border: 1px solid var(--sky-border); }
-
-    .sync-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-
-    .auth-pill-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
-      border-radius: 9px;
-      font-size: 11px;
-      font-weight: 800;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .auth-pill-viewer {
-      background: var(--bg-card-2);
-      color: var(--text-sec);
-      border: 1px solid var(--border-light);
-    }
-
-    .auth-pill-admin {
-      background: var(--emerald-bg);
-      color: var(--emerald-bright);
-      border: 1px solid var(--emerald-border);
-    }
-
-    .nav-tabs {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      background: var(--bg-card);
-      padding: 3px;
-      border-radius: 11px;
-      border: 1px solid var(--border);
-      width: 100%;
-    }
-
-    .nav-tab {
-      flex: 1;
-      padding: 6px 4px;
-      border-radius: 8px;
-      font-size: 11.5px;
-      font-weight: 700;
-      color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      white-space: nowrap;
-      min-width: 0;
-    }
-
+    .sync-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .auth-pill-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 9px; font-size: 11px; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
+    .auth-pill-viewer { background: var(--bg-card-2); color: var(--text-sec); border: 1px solid var(--border-light); }
+    .auth-pill-admin { background: var(--emerald-bg); color: var(--emerald-bright); border: 1px solid var(--emerald-border); }
+    .nav-tabs { display: flex; align-items: center; gap: 3px; background: var(--bg-card); padding: 3px; border-radius: 11px; border: 1px solid var(--border); width: 100%; }
+    .nav-tab { flex: 1; padding: 6px 4px; border-radius: 8px; font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; min-width: 0; }
     .nav-tab:hover { color: var(--text-main); background: rgba(255, 255, 255, 0.05); }
-    .nav-tab.active {
-      background: var(--emerald-dark);
-      color: #ffffff;
-      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
-    }
-
+    .nav-tab.active { background: var(--emerald-dark); color: #ffffff; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35); }
     .nav-tab svg { width: 13px; height: 13px; flex-shrink: 0; }
-
-    .nav-badge {
-      background: rgba(255, 255, 255, 0.14);
-      color: #ffffff;
-      font-size: 9.5px;
-      font-weight: 800;
-      padding: 1px 5px;
-      border-radius: 999px;
-      min-width: 16px;
-      text-align: center;
-      line-height: 1.3;
-    }
-
+    .nav-badge { background: rgba(255, 255, 255, 0.14); color: #ffffff; font-size: 9.5px; font-weight: 800; padding: 1px 5px; border-radius: 999px; min-width: 16px; text-align: center; }
     .nav-tab.active .nav-badge { background: rgba(0, 0, 0, 0.25); }
-
     @media (max-width: 400px) {
       .nav-tab { font-size: 10.5px; gap: 3px; padding: 6px 2px; }
       .nav-tab svg { display: none; }
       .brand-sub { max-width: 135px; }
     }
 
-    /* ==================== MAIN LAYOUT & UTILITIES ==================== */
-    .app-main {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 12px 10px 80px;
-    }
-
+    /* Layout */
+    .app-main { max-width: 780px; margin: 0 auto; padding: 12px 10px 80px; }
     .stack { display: flex; flex-direction: column; gap: 12px; }
     .stack-sm { display: flex; flex-direction: column; gap: 8px; }
     .row { display: flex; align-items: center; gap: 8px; }
     .row-between { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .row-wrap { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
     .hidden { display: none !important; }
-
     .text-xs { font-size: 11.5px; }
     .text-sm { font-size: 13px; }
     .text-center { text-align: center; }
@@ -290,180 +121,56 @@
     .text-rose { color: var(--rose-bright); }
     .text-sky { color: var(--sky); }
 
-    /* ==================== CARDS & BROADCAST SCOREBOARD ==================== */
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-    }
-
+    /* Cards & Scoreboard */
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
     .card-pad { padding: 14px; }
-
-    .card-header {
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .card-header-title {
-      font-size: 11.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-    }
+    .card-header { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(255, 255, 255, 0.02); }
+    .card-header-title { font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
 
     .scoreboard {
       background: linear-gradient(145deg, #13203b 0%, #0f172a 55%, #073b2f 100%);
       border: 1px solid rgba(52, 211, 153, 0.3);
-      border-radius: var(--radius-lg);
-      padding: 14px;
-      box-shadow: var(--shadow-md);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      border-radius: var(--radius-lg); padding: 14px; box-shadow: var(--shadow-md);
+      display: flex; flex-direction: column; gap: 10px;
     }
-
     .sb-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .sb-match-title {
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--text-sec);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      min-width: 0;
-    }
-
+    .sb-match-title { font-size: 12px; font-weight: 800; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .sb-main { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
     .sb-team { font-size: 14px; font-weight: 800; color: var(--text-main); }
     .sb-score-line { display: flex; align-items: baseline; gap: 8px; margin-top: 2px; }
     .sb-score { font-size: 36px; font-weight: 900; letter-spacing: -0.03em; line-height: 1; color: #ffffff; }
     .sb-overs { font-size: 13px; font-weight: 700; color: var(--emerald-bright); }
-
-    .sb-crr-box {
-      background: rgba(11, 17, 32, 0.68);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 6px 11px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-
+    .sb-crr-box { background: rgba(11, 17, 32, 0.68); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 6px 11px; text-align: center; flex-shrink: 0; }
     .sb-crr-label { font-size: 9.5px; font-weight: 800; letter-spacing: 0.08em; color: var(--text-muted); }
     .sb-crr-val { font-size: 17px; font-weight: 900; color: var(--emerald-bright); line-height: 1.15; }
+    .sb-footer { border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 9px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 12px; color: var(--text-sec); }
+    .target-pill { background: var(--amber-bg); color: var(--amber-bright); border: 1px solid var(--amber-border); padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; }
 
-    .sb-footer {
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--text-sec);
-    }
-
-    .target-pill {
-      background: var(--amber-bg);
-      color: var(--amber-bright);
-      border: 1px solid var(--amber-border);
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    /* ==================== BADGES & BANNERS ==================== */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-    }
-
+    /* Badges & Banners */
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: 0.04em; white-space: nowrap; }
     .badge-live { background: var(--emerald-bg); color: var(--emerald-bright); border: 1px solid var(--emerald-border); }
     .badge-break { background: var(--amber-bg); color: var(--amber-bright); border: 1px solid var(--amber-border); }
     .badge-done { background: var(--sky-bg); color: var(--sky); border: 1px solid var(--sky-border); }
-    .badge-active-match { background: var(--indigo-bg); color: var(--indigo-text); border: 1px solid var(--indigo-border); }
-
-    .live-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--emerald-bright);
-      animation: pulse-dot 1.4s infinite;
-    }
-
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
-    }
-
-    .banner {
-      border-radius: var(--radius-md);
-      padding: 11px 13px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald-bright); animation: pulse-dot 1.4s infinite; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+    .banner { border-radius: var(--radius-md); padding: 11px 13px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
     .banner-amber { background: var(--amber-bg); border: 1px solid var(--amber-border); }
     .banner-emerald { background: var(--emerald-bg); border: 1px solid var(--emerald-border); }
     .banner-sky { background: var(--sky-bg); border: 1px solid var(--sky-border); }
-    .banner-error { background: var(--rose-bg); border: 1px solid var(--rose-border); color: #ffe4e6; border-radius: var(--radius-md); padding: 14px; }
 
-    /* ==================== INFO PILLS ==================== */
+    /* Info Pills */
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .info-pill {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 9px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
+    .info-pill { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     .info-pill-label { font-size: 11px; font-weight: 700; color: var(--text-muted); }
     .info-pill-val { font-size: 13px; font-weight: 800; color: var(--text-main); }
     .info-pill-val span { font-size: 11px; font-weight: 600; color: var(--text-muted); }
 
-    /* ==================== BUTTONS ==================== */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 9px 14px;
-      border-radius: 11px;
-      font-size: 13px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px; border-radius: 11px; font-size: 13px; font-weight: 800; white-space: nowrap; }
     .btn-sm { padding: 8px 12px; font-size: 12.5px; border-radius: 10px; }
     .btn-xs { padding: 5px 9px; font-size: 11.5px; border-radius: 8px; gap: 4px; }
     .btn-full { width: 100%; }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    }
+    .btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
     .btn-subtle { background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-light); }
     .btn-emerald-soft { background: var(--emerald-bg); color: var(--emerald-bright); border: 1px solid var(--emerald-border); }
     .btn-sky-soft { background: var(--sky-bg); color: var(--sky); border: 1px solid var(--sky-border); }
@@ -471,71 +178,30 @@
     .btn-wa { background: var(--wa-green); color: #052e16; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.28); }
     .btn-wa-soft { background: rgba(37, 211, 102, 0.14); color: #4ade80; border: 1px solid rgba(37, 211, 102, 0.35); }
     .btn-google { background: #ffffff; color: #0f172a; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+    .icon-btn { width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted); background: rgba(255, 255, 255, 0.05); flex-shrink: 0; }
 
-    .icon-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.05);
-      flex-shrink: 0;
-    }
-    .icon-btn:hover { color: var(--text-main); background: rgba(255, 255, 255, 0.1); }
-
-    /* ==================== TABLES ==================== */
+    /* Tables */
     .table-wrap { width: 100%; overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-    thead th {
-      text-align: left;
-      padding: 8px 10px;
-      font-size: 10.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-dim);
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
+    thead th { text-align: left; padding: 8px 10px; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); border-bottom: 1px solid var(--border); white-space: nowrap; }
     tbody td { padding: 9px 10px; border-bottom: 1px solid rgba(36, 48, 69, 0.7); vertical-align: middle; }
     tbody tr:last-child td { border-bottom: none; }
     th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-
     .striker-row { background: rgba(16, 185, 129, 0.07); }
     .player-cell { display: flex; align-items: center; gap: 6px; min-width: 110px; }
-    .striker-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald-bright); flex-shrink: 0; box-shadow: 0 0 8px rgba(52, 211, 153, 0.8); }
+    .striker-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald-bright); flex-shrink: 0; }
     .nonstriker-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-light); flex-shrink: 0; }
     .player-name { font-weight: 700; color: var(--text-main); }
     .player-name-btn { font-weight: 700; color: var(--text-main); text-align: left; padding: 2px 0; }
     .player-name-btn:hover { color: var(--emerald-bright); }
     .player-dismissal { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
 
-    /* ==================== THIS OVER PILLS ==================== */
-    .over-strip {
-      padding: 10px 14px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(11, 17, 32, 0.45);
-    }
+    /* Over Pills */
+    .over-strip { padding: 10px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px; background: rgba(11, 17, 32, 0.45); }
     .over-strip-label { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); white-space: nowrap; }
     .ball-pills { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding-bottom: 1px; }
     .ball-pills-wrap { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
-    .ball-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 27px;
-      height: 27px;
-      padding: 0 7px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
+    .ball-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 27px; height: 27px; padding: 0 7px; border-radius: 999px; font-size: 11px; font-weight: 800; flex-shrink: 0; }
     .pill-dot { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-light); }
     .pill-run { background: #1e3a5f; color: #e0f2fe; border: 1px solid rgba(56, 189, 248, 0.35); }
     .pill-four { background: var(--emerald-dark); color: #ffffff; }
@@ -543,262 +209,73 @@
     .pill-wicket { background: var(--rose); color: #ffffff; }
     .pill-extra { background: var(--amber-bg); color: var(--amber-bright); border: 1px solid var(--amber-border); }
 
-    /* ==================== SCORING KEYPAD ==================== */
-    .keypad-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-      box-shadow: var(--shadow-sm);
-    }
+    /* Keypad */
+    .keypad-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; display: flex; flex-direction: column; gap: 9px; box-shadow: var(--shadow-sm); }
     .keypad-runs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; }
-    .key-run {
-      height: 50px;
-      border-radius: 13px;
-      background: var(--bg-card-2);
-      border: 1px solid var(--border-light);
-      color: var(--text-main);
-      font-size: 19px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .key-run { height: 50px; border-radius: 13px; background: var(--bg-card-2); border: 1px solid var(--border-light); color: var(--text-main); font-size: 19px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
     .key-four { background: rgba(16, 185, 129, 0.22); border-color: var(--emerald); color: var(--emerald-bright); }
     .key-six { background: rgba(124, 58, 237, 0.24); border-color: #8b5cf6; color: #ddd6fe; }
     .keypad-extras { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
-    .key-extra {
-      height: 42px;
-      border-radius: 11px;
-      background: var(--amber-bg);
-      border: 1px solid var(--amber-border);
-      color: var(--amber-bright);
-      font-size: 12.5px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .key-extra { height: 42px; border-radius: 11px; background: var(--amber-bg); border: 1px solid var(--amber-border); color: var(--amber-bright); font-size: 12.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
     .key-bye { background: var(--sky-bg); border-color: rgba(56, 189, 248, 0.35); color: var(--sky); }
-    .key-out { background: var(--rose); border-color: #f43f5e; color: #ffffff; box-shadow: 0 3px 10px rgba(225, 29, 72, 0.35); }
+    .key-out { background: var(--rose); border-color: #f43f5e; color: #ffffff; }
     .keypad-utils { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
 
-    /* ==================== FORMS & INPUTS ==================== */
+    /* Forms */
     .field-label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; }
     .mini-label { display: block; font-size: 10px; font-weight: 700; color: var(--text-dim); margin-bottom: 3px; }
-    .field-input, .field-select {
-      width: 100%;
-      background: var(--bg-input);
-      border: 1px solid var(--border-light);
-      border-radius: 10px;
-      padding: 9px 11px;
-      font-size: 13.5px;
-      color: var(--text-main);
-      outline: none;
-    }
-    .field-input:focus, .field-select:focus { border-color: var(--emerald); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.22); }
+    .field-input, .field-select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 10px; padding: 9px 11px; font-size: 13.5px; color: var(--text-main); outline: none; }
+    .field-input:focus, .field-select:focus { border-color: var(--emerald); }
     .field-input-sm { padding: 7px 9px; font-size: 12.5px; border-radius: 9px; }
     .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     @media (max-width: 520px) { .form-grid-3 { grid-template-columns: 1fr; } }
-
-    .pill-choice {
-      padding: 8px 12px;
-      border-radius: 10px;
-      background: var(--bg-input);
-      border: 1px solid var(--border-light);
-      color: var(--text-sec);
-      font-size: 12.5px;
-      font-weight: 800;
-      text-align: center;
-    }
+    .pill-choice { padding: 8px 12px; border-radius: 10px; background: var(--bg-input); border: 1px solid var(--border-light); color: var(--text-sec); font-size: 12.5px; font-weight: 800; text-align: center; }
     .pill-choice.active { background: var(--emerald-bg); border-color: var(--emerald); color: var(--emerald-bright); }
 
-    /* ==================== SEGMENTED TABS & FILTER CHIPS ==================== */
-    .seg-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 4px;
-    }
+    /* Tabs & Filters */
+    .seg-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; padding: 4px; }
     .seg-tabs-2 { grid-template-columns: repeat(2, 1fr); }
-    .seg-tab {
-      padding: 8px 6px;
-      border-radius: 9px;
-      font-size: 11.5px;
-      font-weight: 800;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .seg-tab { padding: 8px 6px; border-radius: 9px; font-size: 11.5px; font-weight: 800; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .seg-tab.active { background: var(--emerald-dark); color: #ffffff; }
-
-    .filter-chip {
-      padding: 5px 11px;
-      border-radius: 999px;
-      font-size: 11.5px;
-      font-weight: 700;
-      background: var(--bg-input);
-      border: 1px solid var(--border-light);
-      color: var(--text-muted);
-    }
+    .filter-chip { padding: 5px 11px; border-radius: 999px; font-size: 11.5px; font-weight: 700; background: var(--bg-input); border: 1px solid var(--border-light); color: var(--text-muted); }
     .filter-chip.active { background: var(--emerald-bg); border-color: var(--emerald); color: var(--emerald-bright); }
-
-    .edit-player-card {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .edit-stats-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .edit-player-card { background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
     .edit-stats-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 
-    /* ==================== MODALS ==================== */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 60;
-      background: rgba(2, 6, 23, 0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-    }
+    /* Modals */
+    .modal-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(2, 6, 23, 0.82); display: none; align-items: center; justify-content: center; padding: 12px; }
     .modal-backdrop.open { display: flex; }
-    .modal-box {
-      width: 100%;
-      max-width: 440px;
-      max-height: 90vh;
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
-      border-radius: 18px;
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+    .modal-box { width: 100%; max-width: 440px; max-height: 90vh; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 18px; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; overflow: hidden; }
     .modal-box.wide { max-width: 560px; }
-    .modal-head {
-      padding: 13px 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-shrink: 0;
-    }
-    .modal-scroll {
-      padding: 14px 16px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      flex: 1;
-    }
-    .modal-foot {
-      padding: 12px 16px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(11, 17, 32, 0.45);
-      flex-shrink: 0;
-    }
+    .modal-head { padding: 13px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; }
+    .modal-scroll { padding: 14px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .modal-foot { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px; background: rgba(11, 17, 32, 0.45); flex-shrink: 0; }
 
-    /* ==================== WHATSAPP PREVIEW & CANVAS ==================== */
-    .wa-wallpaper {
-      background: #0b141a;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 10px;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-      background-size: 16px 16px;
-    }
+    /* WhatsApp Preview */
+    .wa-wallpaper { background: #0b141a; border: 1px solid var(--border); border-radius: 14px; padding: 14px 10px; }
     .wa-bubble-wrap { display: flex; justify-content: flex-end; }
-    .wa-bubble {
-      background: var(--wa-bubble);
-      border: 1px solid var(--wa-bubble-border);
-      color: #e9edef;
-      border-radius: 12px 2px 12px 12px;
-      padding: 10px 12px 6px;
-      font-size: 12.5px;
-      line-height: 1.45;
-      max-width: 96%;
-      word-break: break-word;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
-    }
-    .wa-meta {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 4px;
-      font-size: 10px;
-      color: rgba(233, 237, 239, 0.65);
-      margin-top: 4px;
-    }
-    .canvas-stage {
-      background: #020617;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 8px;
-      display: flex;
-      justify-content: center;
-    }
-    #share-scorecard-canvas {
-      width: 100%;
-      max-width: 340px;
-      height: auto;
-      border-radius: 10px;
-      display: block;
-    }
+    .wa-bubble { background: var(--wa-bubble); border: 1px solid var(--wa-bubble-border); color: #e9edef; border-radius: 12px 2px 12px 12px; padding: 10px 12px 6px; font-size: 12.5px; line-height: 1.45; max-width: 96%; word-break: break-word; }
+    .wa-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-size: 10px; color: rgba(233, 237, 239, 0.65); margin-top: 4px; }
+    .canvas-stage { background: #020617; border: 1px solid var(--border); border-radius: 14px; padding: 8px; display: flex; justify-content: center; }
+    #share-scorecard-canvas { width: 100%; max-width: 340px; height: auto; border-radius: 10px; display: block; }
 
-    /* ==================== TOAST NOTIFICATION ==================== */
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 20px;
-      transform: translate(-50%, 16px);
-      background: #0f172a;
-      color: #f8fafc;
-      border: 1px solid var(--emerald);
-      padding: 10px 16px;
-      border-radius: 999px;
-      font-size: 12.5px;
-      font-weight: 800;
-      box-shadow: var(--shadow-md);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      z-index: 90;
-      max-width: 90vw;
-      text-align: center;
-    }
+    /* Toast */
+    .toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 16px); background: #0f172a; color: #f8fafc; border: 1px solid var(--emerald); padding: 10px 16px; border-radius: 999px; font-size: 12.5px; font-weight: 800; box-shadow: var(--shadow-md); opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 90; max-width: 90vw; text-align: center; }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
     .toast.error { border-color: var(--rose); color: #ffe4e6; }
   </style>
 </head>
 <body>
-
-  <!-- ==================== STATIC ALWAYS-VISIBLE STICKY HEADER ==================== -->
   <header class="app-header">
     <div class="header-inner">
       <div class="header-top">
-        <button type="button" class="brand-btn" data-action="nav" data-tab="live" aria-label="Tamarind Cricket Players (TCP)">
+        <button type="button" class="brand-btn" data-action="nav" data-tab="live">
           <div class="brand-icon" aria-hidden="true">
             <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="9.5" stroke="#ffffff" stroke-width="1.8" opacity="0.9"></circle>
               <path d="M6.2 6.8c3.6 3.2 7.8 7.4 11.6 10.6" stroke="#a7f3d0" stroke-width="1.4" stroke-dasharray="2 2"></path>
-              <text x="12" y="14.5" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="7.2" font-weight="900">TCP</text>
+              <text x="12" y="14.5" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="7.2" font-weight="900">TCP</text>
             </svg>
           </div>
           <div class="brand-text-col">
@@ -812,12 +289,10 @@
             <span class="brand-sub">Tamarind Cricket Players</span>
           </div>
         </button>
-
         <button type="button" id="auth-header-btn" class="auth-pill-btn auth-pill-viewer" data-action="open-auth">
           <span id="auth-header-text">Admin Login</span>
         </button>
       </div>
-
       <nav class="nav-tabs" aria-label="Main Navigation">
         <button type="button" id="nav-live" class="nav-tab active" data-action="nav" data-tab="live">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="3"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49"></path></svg>
@@ -844,257 +319,1756 @@
     </div>
   </header>
 
-  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
-  <main id="app-main" class="app-main">
-    <div class="card card-pad text-center muted text-sm">Loading Tamarind Cricket Players (TCP)...</div>
-  </main>
-
-  <!-- Hidden file input for JSON History Import -->
+  <main id="app-main" class="app-main"></main>
   <input id="import-json-input" type="file" accept=".json,application/json" class="hidden" />
-
-  <!-- ==================== MODAL OVERLAY ==================== -->
   <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true">
     <div id="modal-box" class="modal-box"></div>
   </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"><span id="toast-msg">Done</span></div>
 
-  <!-- ==================== TOAST NOTIFICATION ==================== -->
-  <div id="toast" class="toast" role="status" aria-live="polite">
-    <span id="toast-msg">Done</span>
-  </div>
-
-  <!-- ==================== FIREBASE COMPAT SDK (SAFE CDN LOAD) ==================== -->
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
-
-  <!-- ==================== APPLICATION SCRIPT (FIREBASE + LOCAL FALLBACK) ==================== -->
   <script>
-    /*************************************************************************
-     * 0. FIREBASE CONFIGURATION (PRE-CONFIGURED FOR TCP CRICKET)
-     *************************************************************************/
-    var FIREBASE_CONFIG = {
-      apiKey: "AIzaSyDgiZi07d4CT-YDixcVx2JQwL2HioGx93A",
-      authDomain: "tcp-cricket.firebaseapp.com",
-      projectId: "tcp-cricket",
-      storageBucket: "tcp-cricket.firebasestorage.app",
-      messagingSenderId: "556014037332",
-      appId: "1:556014037332:web:c95deb36613e33168dc0c1"
-    };
+    (function () {
+      'use strict';
 
-    const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'tcp-cricket-club';
-// ... existing code ... -->
-    async function persistMatch(match) {
-      if (!match) return;
-      match.updatedAt = Date.now();
-      const idx = state.matches.findIndex(m => m.id === match.id);
-      if (idx >= 0) state.matches[idx] = match;
-      else state.matches.unshift(match);
-      sortMatches();
+      /* ======================== FIREBASE CONFIG ======================== */
+      const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyDgiZi07d4CT-YDixcVx2JQwL2HioGx93A",
+        authDomain: "tcp-cricket.firebaseapp.com",
+        projectId: "tcp-cricket",
+        storageBucket: "tcp-cricket.firebasestorage.app",
+        messagingSenderId: "556014037332",
+        appId: "1:556014037332:web:c95deb36613e33168dc0c1"
+      };
 
-      if (state.mode === 'cloud' && fb.enabled && fb.db) {
-        if (!isAdmin()) {
-          showToast('Admin access required to save changes', true);
-          return;
-        }
+      const LOCAL_KEY = 'tcp_cricket_state_v2';
+
+      /* ======================== APP STATE ======================== */
+      const state = {
+        matches: [],
+        activeMatchId: null,
+        currentTab: 'live',
+        scorecardInn: 0,
+        historySearch: '',
+        historyFilter: 'all',
+        mode: 'local', // 'local' | 'cloud'
+        syncState: 'local', // 'local' | 'syncing' | 'cloud'
+        user: null,
+        primaryAdmin: '',
+        admins: [],
+        authFormMode: 'signin', // 'signin' | 'signup'
+        shareMatchId: null,
+        shareTab: 'quick', // 'quick' | 'full' | 'image'
+        editDraft: null,
+        editTab: 'info', // 'info' | 'batters' | 'bowlers'
+        editInn: 0
+      };
+
+      const fb = { enabled: false, app: null, auth: null, db: null };
+
+      /* ======================== HELPERS ======================== */
+      function esc(str) {
+        return String(str == null ? '' : str)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+      function uid() {
+        return 'm_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+      }
+      function todayStr() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function fmtOvers(balls) {
+        const b = Math.max(0, Number(balls) || 0);
+        return Math.floor(b / 6) + '.' + (b % 6);
+      }
+      function calcRR(runs, balls) {
+        if (!balls) return '0.00';
+        return ((runs / balls) * 6).toFixed(2);
+      }
+      function calcSR(runs, balls) {
+        if (!balls) return '0.0';
+        return ((runs / balls) * 100).toFixed(1);
+      }
+      function clone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      }
+      function showToast(msg, isErr) {
+        const el = document.getElementById('toast');
+        const txt = document.getElementById('toast-msg');
+        if (!el || !txt) return;
+        txt.textContent = msg;
+        el.className = 'toast show' + (isErr ? ' error' : '');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => { el.className = 'toast'; }, 2800);
+      }
+
+      function isAdmin() {
+        if (state.mode === 'local') return true;
+        if (!state.user || !state.user.email) return false;
+        const em = state.user.email.toLowerCase();
+        return em === state.primaryAdmin.toLowerCase() || state.admins.map(a => a.toLowerCase()).includes(em);
+      }
+
+      function getActiveMatch() {
+        if (!state.matches.length) return null;
+        return state.matches.find(m => m.id === state.activeMatchId) || state.matches[0];
+      }
+
+      function sortMatches() {
+        state.matches.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      }
+
+      /* ======================== STORAGE & FIREBASE ======================== */
+      function loadLocal() {
         try {
-          state.syncState = 'syncing';
-          updateSyncPill();
-          const ref = fb.db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('tcp_matches').doc(match.id);
-          await ref.set(match);
-          state.syncState = 'cloud';
-          updateSyncPill();
-        } catch (err) {
-          state.syncState = 'cloud';
-          updateSyncPill();
-          showToast('Cloud save failed: ' + (err.message || 'Check permissions'), true);
-        }
-      } else {
-        saveLocalMatches();
-      }
-    }
-
-    async function removeMatch(matchId) {
-      state.matches = state.matches.filter(m => m.id !== matchId);
-      if (state.activeMatchId === matchId) {
-        state.activeMatchId = state.matches.length > 0 ? state.matches[0].id : null;
-      }
-
-      if (state.mode === 'cloud' && fb.enabled && fb.db) {
-        if (!isAdmin()) {
-          showToast('Admin access required', true);
-          return;
-        }
-        try {
-          state.syncState = 'syncing';
-          updateSyncPill();
-          const ref = fb.db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('tcp_matches').doc(matchId);
-          await ref.delete();
-          state.syncState = 'cloud';
-          updateSyncPill();
-        } catch (err) {
-          state.syncState = 'cloud';
-          updateSyncPill();
-          showToast('Cloud delete failed', true);
-        }
-      } else {
-        saveLocalMatches();
-      }
-    }
-
-    async function saveAdminListToCloud(newEmails, primaryEmail) {
-      if (!fb.enabled || !fb.db) return;
-      try {
-        state.syncState = 'syncing';
-        updateSyncPill();
-        const ref = fb.db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('tcp_config').doc('admins');
-        await ref.set({
-          emails: newEmails,
-          primaryAdmin: primaryEmail || newEmails[0] || '',
-          updatedAt: Date.now()
-        });
-        state.syncState = 'cloud';
-        updateSyncPill();
-      } catch (err) {
-        state.syncState = 'cloud';
-        updateSyncPill();
-        showToast('Could not update admin list: ' + (err.message || ''), true);
-      }
-    }
-
-    async function initFirebaseIfConfigured() {
-      // Always render immediately from local storage so the UI never hangs on "Loading..."
-      loadLocalMatches();
-      render();
-
-      const cfg = resolveFirebaseConfig();
-      if (!cfg || typeof firebase === 'undefined') {
-        state.mode = 'local';
-        state.syncState = 'local';
-        updateSyncPill();
-        return;
-      }
-
-      try {
-        state.syncState = 'syncing';
-        updateSyncPill();
-
-        fb.app = firebase.apps && firebase.apps.length ? firebase.app() : firebase.initializeApp(cfg);
-        fb.auth = firebase.auth();
-        fb.db = firebase.firestore();
-        fb.enabled = true;
-        state.mode = 'cloud';
-
-        // Authenticate (custom token or anonymous for read-only viewers) BEFORE Firestore queries
-        try {
-          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await fb.auth.signInWithCustomToken(__initial_auth_token);
-          } else if (!fb.auth.currentUser) {
-            await fb.auth.signInAnonymously();
+          const raw = localStorage.getItem(LOCAL_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed.matches)) state.matches = parsed.matches;
+            if (parsed.activeMatchId) state.activeMatchId = parsed.activeMatchId;
           }
-        } catch (authErr) {
-          // Proceed; onAuthStateChanged will still track login state
-        }
+        } catch (e) {}
+        sortMatches();
+      }
 
-        fb.auth.onAuthStateChanged((user) => {
-          state.user = user || null;
-          if (!isAdmin() && (state.currentTab === 'setup' || state.currentTab === 'admins')) {
-            state.currentTab = 'live';
+      function saveLocal() {
+        try {
+          localStorage.setItem(LOCAL_KEY, JSON.stringify({
+            matches: state.matches,
+            activeMatchId: state.activeMatchId
+          }));
+        } catch (e) {}
+      }
+
+      async function persistState() {
+        sortMatches();
+        saveLocal();
+        if (state.mode === 'cloud' && fb.enabled && fb.db) {
+          if (!isAdmin()) {
+            showToast('Admin access required to save changes', true);
+            return;
           }
-          render();
-        });
-
-        // Subscribe to authorized admin list
-        const adminsDocRef = fb.db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('tcp_config').doc('admins');
-        fb.unsubAdmins = adminsDocRef.onSnapshot(
-          (snap) => {
-            if (snap.exists) {
-              const data = snap.data() || {};
-              state.adminEmails = Array.isArray(data.emails)
-                ? data.emails.map(e => String(e).trim().toLowerCase()).filter(Boolean)
-                : [];
-              state.primaryAdminEmail = String(data.primaryAdmin || state.adminEmails[0] || '').toLowerCase();
-            } else {
-              state.adminEmails = [];
-              state.primaryAdminEmail = '';
-            }
-            render();
-          },
-          () => { /* fallback silently */ }
-        );
-
-        // Subscribe to all matches in real time
-        const matchesColRef = fb.db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('tcp_matches');
-        fb.unsubMatches = matchesColRef.onSnapshot(
-          (snap) => {
-            const list = [];
-            snap.forEach((docSnap) => {
-              const clean = sanitizeMatch({ id: docSnap.id, ...docSnap.data() });
-              if (clean) list.push(clean);
+          try {
+            state.syncState = 'syncing';
+            updateHeader();
+            await fb.db.collection('tcp_cricket').doc('state').set({
+              matches: state.matches,
+              activeMatchId: state.activeMatchId,
+              updatedAt: Date.now()
             });
-            state.matches = list;
-            sortMatches();
-            if (!state.activeMatchId || !state.matches.some(m => m.id === state.activeMatchId)) {
-              const liveMatch = state.matches.find(m => m.status === 'live');
-              state.activeMatchId = liveMatch ? liveMatch.id : (state.matches[0] ? state.matches[0].id : null);
-            }
             state.syncState = 'cloud';
-            updateSyncPill();
-            render();
-          },
-          () => {
-            state.syncState = 'local';
-            state.mode = 'local';
-            loadLocalMatches();
-            updateSyncPill();
-            render();
-            showToast('Cloud unavailable, switched to Local Mode', true);
+            updateHeader();
+          } catch (err) {
+            state.syncState = 'cloud';
+            updateHeader();
+            showToast('Cloud sync error: ' + (err.message || 'Check rules'), true);
           }
-        );
-      } catch (err) {
-        state.mode = 'local';
-        state.syncState = 'local';
-        updateSyncPill();
-        render();
-      }
-    }
-// ... existing code ... -->
-      } else if (action === 'google-signin') {
-        if (!fb.auth || typeof firebase === 'undefined') return;
-        try {
-          const provider = new firebase.auth.GoogleAuthProvider();
-          await fb.auth.signInWithPopup(provider);
-          closeModal();
-          showToast('Signed in with Google!');
-        } catch (err) {
-          showToast('Google Sign-In failed: ' + (err.message || ''), true);
         }
-      } else if (action === 'sign-out') {
-        if (!fb.auth) return;
+      }
+
+      async function saveAdminsCloud(primaryAdmin, adminsList) {
+        if (!fb.enabled || !fb.db) return;
         try {
-          await fb.auth.signOut();
-          await fb.auth.signInAnonymously().catch(() => {});
-          state.currentTab = 'live';
+          state.syncState = 'syncing';
+          updateHeader();
+          await fb.db.collection('tcp_cricket').doc('admins').set({
+            primaryAdmin: primaryAdmin,
+            admins: adminsList,
+            updatedAt: Date.now()
+          });
+          state.syncState = 'cloud';
+          updateHeader();
+        } catch (err) {
+          state.syncState = 'cloud';
+          updateHeader();
+          showToast('Admin save failed: ' + (err.message || ''), true);
+        }
+      }
+
+      function initFirebaseAsync() {
+        if (typeof firebase === 'undefined') {
+          state.mode = 'local';
+          state.syncState = 'local';
+          updateHeader();
+          return;
+        }
+        try {
+          state.syncState = 'syncing';
+          updateHeader();
+          fb.app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+          fb.auth = firebase.auth();
+          fb.db = firebase.firestore();
+          fb.enabled = true;
+          state.mode = 'cloud';
+
+          fb.auth.getRedirectResult().catch(() => {});
+
+          fb.auth.onAuthStateChanged((user) => {
+            state.user = user && !user.isAnonymous ? user : null;
+            if (!isAdmin() && (state.currentTab === 'setup' || state.currentTab === 'admins')) {
+              state.currentTab = 'live';
+            }
+            render();
+          });
+
+          fb.db.collection('tcp_cricket').doc('admins').onSnapshot(
+            (snap) => {
+              if (snap.exists) {
+                const d = snap.data() || {};
+                state.primaryAdmin = String(d.primaryAdmin || '').trim().toLowerCase();
+                state.admins = Array.isArray(d.admins) ? d.admins.map(e => String(e).trim().toLowerCase()).filter(Boolean) : [];
+              } else {
+                state.primaryAdmin = '';
+                state.admins = [];
+              }
+              render();
+            },
+            () => {}
+          );
+
+          fb.db.collection('tcp_cricket').doc('state').onSnapshot(
+            (snap) => {
+              if (snap.exists) {
+                const d = snap.data() || {};
+                if (Array.isArray(d.matches)) state.matches = d.matches;
+                if (d.activeMatchId) state.activeMatchId = d.activeMatchId;
+                sortMatches();
+                saveLocal();
+              }
+              state.syncState = 'cloud';
+              render();
+            },
+            () => {
+              state.mode = 'local';
+              state.syncState = 'local';
+              render();
+            }
+          );
+        } catch (err) {
+          state.mode = 'local';
+          state.syncState = 'local';
+          render();
+        }
+      }
+
+      /* ======================== CRICKET ENGINE ======================== */
+      function createInnings(battingTeam, bowlingTeam, strikerName, nonStrikerName, bowlerName) {
+        return {
+          battingTeam: battingTeam,
+          bowlingTeam: bowlingTeam,
+          runs: 0,
+          wickets: 0,
+          balls: 0,
+          extras: { wd: 0, nb: 0, b: 0, lb: 0 },
+          batters: [
+            { name: strikerName || 'Batter 1', runs: 0, balls: 0, fours: 0, sixes: 0, out: false, dismissal: '' },
+            { name: nonStrikerName || 'Batter 2', runs: 0, balls: 0, fours: 0, sixes: 0, out: false, dismissal: '' }
+          ],
+          bowlers: [
+            { name: bowlerName || 'Bowler 1', balls: 0, maidens: 0, runs: 0, wickets: 0 }
+          ],
+          strikerIdx: 0,
+          nonStrikerIdx: 1,
+          bowlerIdx: 0,
+          fow: [],
+          oversLog: [],
+          currentOverBalls: [],
+          currentOverRuns: 0,
+          partnershipRuns: 0,
+          partnershipBalls: 0,
+          history: []
+        };
+      }
+
+      function createNewMatch(opts) {
+        const batFirst = opts.tossDecision === 'bat' ? opts.tossWinner : (opts.tossWinner === opts.teamA ? opts.teamB : opts.teamA);
+        const bowlFirst = batFirst === opts.teamA ? opts.teamB : opts.teamA;
+        return {
+          id: uid(),
+          title: opts.title || 'TCP Weekend T20',
+          venue: opts.venue || 'Tamarind Ground',
+          date: opts.date || todayStr(),
+          oversLimit: Math.max(1, Number(opts.oversLimit) || 20),
+          teamA: opts.teamA || 'TCP Strikers',
+          teamB: opts.teamB || 'TCP Royals',
+          tossWinner: opts.tossWinner || opts.teamA || 'TCP Strikers',
+          tossDecision: opts.tossDecision || 'bat',
+          status: 'live', // 'live' | 'break' | 'completed'
+          result: '',
+          currentInnings: 0,
+          innings: [
+            createInnings(batFirst, bowlFirst, opts.striker, opts.nonStriker, opts.bowler),
+            createInnings(bowlFirst, batFirst, 'Opener 1', 'Opener 2', 'Bowler 1')
+          ],
+          updatedAt: Date.now()
+        };
+      }
+
+      function createDemoMatch() {
+        const m = createNewMatch({
+          title: 'TCP Sunday League — Final',
+          venue: 'Tamarind Main Oval',
+          date: todayStr(),
+          oversLimit: 20,
+          teamA: 'TCP Strikers',
+          teamB: 'TCP Warriors',
+          tossWinner: 'TCP Strikers',
+          tossDecision: 'bat',
+          striker: 'Pradeep',
+          nonStriker: 'Ravi',
+          bowler: 'Karthik'
+        });
+        const i1 = m.innings[0];
+        i1.runs = 164; i1.wickets = 6; i1.balls = 120;
+        i1.extras = { wd: 6, nb: 1, b: 2, lb: 3 };
+        i1.batters = [
+          { name: 'Pradeep', runs: 62, balls: 41, fours: 6, sixes: 3, out: true, dismissal: 'c Kiran b Karthik' },
+          { name: 'Ravi', runs: 34, balls: 27, fours: 4, sixes: 1, out: true, dismissal: 'b Suresh' },
+          { name: 'Arjun', runs: 28, balls: 22, fours: 2, sixes: 1, out: true, dismissal: 'run out' },
+          { name: 'Vikram', runs: 19, balls: 15, fours: 2, sixes: 0, out: false, dismissal: '' },
+          { name: 'Nikhil', runs: 9, balls: 15, fours: 0, sixes: 0, out: false, dismissal: '' }
+        ];
+        i1.bowlers = [
+          { name: 'Karthik', balls: 24, maidens: 0, runs: 31, wickets: 2 },
+          { name: 'Suresh', balls: 24, maidens: 0, runs: 34, wickets: 2 },
+          { name: 'Manoj', balls: 24, maidens: 0, runs: 38, wickets: 1 }
+        ];
+        i1.fow = ['58/1 (7.2)', '112/2 (13.4)', '141/3 (17.1)'];
+        i1.oversLog = [{ over: 20, bowler: 'Karthik', runs: 11, balls: ['1', '4', '0', '2', 'W', '4'] }];
+
+        m.currentInnings = 1;
+        const i2 = m.innings[1];
+        i2.runs = 148; i2.wickets = 4; i2.balls = 109;
+        i2.extras = { wd: 5, nb: 1, b: 0, lb: 2 };
+        i2.batters = [
+          { name: 'Kiran', runs: 54, balls: 38, fours: 5, sixes: 2, out: true, dismissal: 'b Pradeep' },
+          { name: 'Sai', runs: 46, balls: 31, fours: 4, sixes: 2, out: false, dismissal: '' },
+          { name: 'Ramesh', runs: 22, balls: 18, fours: 2, sixes: 0, out: false, dismissal: '' }
+        ];
+        i2.strikerIdx = 1; i2.nonStrikerIdx = 2;
+        i2.bowlers = [
+          { name: 'Pradeep', balls: 24, maidens: 0, runs: 28, wickets: 2 },
+          { name: 'Vikram', balls: 19, maidens: 0, runs: 26, wickets: 1 }
+        ];
+        i2.bowlerIdx = 1;
+        i2.partnershipRuns = 42; i2.partnershipBalls = 28;
+        i2.currentOverBalls = ['4']; i2.currentOverRuns = 4;
+        i2.fow = ['44/1 (5.3)', '106/2 (13.2)'];
+        i2.oversLog = [{ over: 18, bowler: 'Pradeep', runs: 8, balls: ['1', '0', '2', '1', '4', '0'] }];
+        return m;
+      }
+
+      function computeResult(m) {
+        const i1 = m.innings[0], i2 = m.innings[1];
+        if (i2.runs > i1.runs) return i2.battingTeam + ' won by ' + (10 - i2.wickets) + ' wickets';
+        if (i1.runs > i2.runs) return i1.battingTeam + ' won by ' + (i1.runs - i2.runs) + ' runs';
+        return 'Match Tied';
+      }
+
+      function pushUndoSnapshot(inn) {
+        const snap = clone(inn);
+        snap.history = [];
+        inn.history.push(snap);
+        if (inn.history.length > 30) inn.history.shift();
+      }
+
+      function scoreBall(type, runsVal, wicketInfo) {
+        const m = getActiveMatch();
+        if (!m || m.status !== 'live' || !isAdmin()) return;
+        const inn = m.innings[m.currentInnings];
+        pushUndoSnapshot(inn);
+
+        const striker = inn.batters[inn.strikerIdx];
+        const bowler = inn.bowlers[inn.bowlerIdx];
+        const r = Number(runsVal) || 0;
+        let legal = true;
+        let label = String(r);
+
+        if (type === 'run') {
+          inn.runs += r;
+          striker.runs += r;
+          striker.balls += 1;
+          if (r === 4) striker.fours += 1;
+          if (r === 6) striker.sixes += 1;
+          bowler.runs += r;
+          inn.partnershipRuns += r;
+          inn.partnershipBalls += 1;
+          inn.currentOverRuns += r;
+        } else if (type === 'wd') {
+          legal = false;
+          const total = 1 + r;
+          inn.runs += total;
+          inn.extras.wd += total;
+          bowler.runs += total;
+          inn.partnershipRuns += total;
+          inn.currentOverRuns += total;
+          label = r > 0 ? 'Wd+' + r : 'Wd';
+        } else if (type === 'nb') {
+          legal = false;
+          const total = 1 + r;
+          inn.runs += total;
+          inn.extras.nb += 1;
+          striker.runs += r;
+          if (r === 4) striker.fours += 1;
+          if (r === 6) striker.sixes += 1;
+          bowler.runs += total;
+          inn.partnershipRuns += total;
+          inn.currentOverRuns += total;
+          label = r > 0 ? 'Nb+' + r : 'Nb';
+        } else if (type === 'b' || type === 'lb') {
+          inn.runs += r;
+          inn.extras[type] += r;
+          striker.balls += 1;
+          inn.partnershipRuns += r;
+          inn.partnershipBalls += 1;
+          inn.currentOverRuns += r;
+          label = r + type.toUpperCase();
+        } else if (type === 'wicket') {
+          inn.runs += r;
+          striker.runs += r;
+          striker.balls += 1;
+          bowler.runs += r;
+          inn.wickets += 1;
+          if (wicketInfo.kind !== 'Run Out') bowler.wickets += 1;
+          striker.out = true;
+          striker.dismissal = wicketInfo.dismissalText || wicketInfo.kind;
+          inn.fow.push(inn.runs + '/' + inn.wickets + ' (' + fmtOvers(inn.balls + 1) + ')');
+          inn.partnershipRuns = 0;
+          inn.partnershipBalls = 0;
+          inn.currentOverRuns += r;
+          label = r > 0 ? 'W+' + r : 'W';
+          if (inn.wickets < 10 && wicketInfo.newBatter) {
+            inn.batters.push({ name: wicketInfo.newBatter, runs: 0, balls: 0, fours: 0, sixes: 0, out: false, dismissal: '' });
+            inn.strikerIdx = inn.batters.length - 1;
+          }
+        }
+
+        inn.currentOverBalls.push(label);
+        if (legal) {
+          inn.balls += 1;
+          bowler.balls += 1;
+        }
+
+        // Rotate strike on odd runs
+        if (r % 2 === 1 && type !== 'wicket') {
+          const tmp = inn.strikerIdx;
+          inn.strikerIdx = inn.nonStrikerIdx;
+          inn.nonStrikerIdx = tmp;
+        }
+
+        let overEnded = false;
+        if (legal && inn.balls % 6 === 0) {
+          overEnded = true;
+          if (inn.currentOverRuns === 0) bowler.maidens += 1;
+          inn.oversLog.unshift({
+            over: Math.floor(inn.balls / 6),
+            bowler: bowler.name,
+            runs: inn.currentOverRuns,
+            balls: inn.currentOverBalls.slice()
+          });
+          inn.currentOverBalls = [];
+          inn.currentOverRuns = 0;
+          const tmp = inn.strikerIdx;
+          inn.strikerIdx = inn.nonStrikerIdx;
+          inn.nonStrikerIdx = tmp;
+        }
+
+        // Check innings / match completion
+        const maxBalls = m.oversLimit * 6;
+        const target = m.currentInnings === 1 ? m.innings[0].runs + 1 : null;
+        let inningsOver = inn.wickets >= 10 || inn.balls >= maxBalls;
+        if (target !== null && inn.runs >= target) inningsOver = true;
+
+        if (inningsOver) {
+          if (m.currentInnings === 0) {
+            m.status = 'break';
+          } else {
+            m.status = 'completed';
+            m.result = computeResult(m);
+          }
+        }
+
+        persistState();
+        render();
+
+        if (overEnded && !inningsOver) {
+          openBowlerModal();
+        }
+      }
+
+      function undoLastBall() {
+        const m = getActiveMatch();
+        if (!m || !isAdmin()) return;
+        const inn = m.innings[m.currentInnings];
+        if (!inn.history || !inn.history.length) {
+          showToast('Nothing to undo', true);
+          return;
+        }
+        const prev = inn.history.pop();
+        prev.history = inn.history;
+        m.innings[m.currentInnings] = prev;
+        m.status = 'live';
+        m.result = '';
+        persistState();
+        render();
+        showToast('Last ball undone');
+      }
+
+      /* ======================== WHATSAPP FORMATTERS & CANVAS ======================== */
+      function buildWhatsAppQuick(m) {
+        const i1 = m.innings[0], i2 = m.innings[1];
+        const inn = m.innings[m.currentInnings];
+        const lines = [];
+        lines.push('🏏 *TAMARIND CRICKET PLAYERS (TCP)*');
+        lines.push('*' + m.title + '*');
+        lines.push('_' + m.venue + ' • ' + m.date + '_');
+        lines.push('━━━━━━━━━━━━━━━━━━');
+
+        if (m.status === 'completed') {
+          lines.push('🏆 *' + (m.result || computeResult(m)) + '*');
+          lines.push('');
+        }
+        lines.push('*' + i1.battingTeam + ':* *' + i1.runs + '/' + i1.wickets + '* (' + fmtOvers(i1.balls) + '/' + m.oversLimit + ' ov)');
+        if (m.currentInnings === 1 || i2.balls > 0 || i2.runs > 0) {
+          lines.push('*' + i2.battingTeam + ':* *' + i2.runs + '/' + i2.wickets + '* (' + fmtOvers(i2.balls) + '/' + m.oversLimit + ' ov)');
+        }
+        if (m.status === 'live') {
+          lines.push('CRR: ' + calcRR(inn.runs, inn.balls));
+          if (m.currentInnings === 1) {
+            const need = Math.max(0, (i1.runs + 1) - i2.runs);
+            const rem = Math.max(0, (m.oversLimit * 6) - i2.balls);
+            lines.push('🎯 Need *' + need + '* runs in *' + rem + '* balls (RRR: ' + calcRR(need, rem) + ')');
+          }
+        }
+        lines.push('━━━━━━━━━━━━━━━━━━');
+        const topBat = inn.batters.slice().sort((a, b) => b.runs - a.runs).slice(0, 3);
+        if (topBat.length) {
+          lines.push('*Batting:*');
+          topBat.forEach(b => {
+            lines.push('• ' + b.name + ': *' + b.runs + (b.out ? '' : '✱') + '* (' + b.balls + 'b, ' + b.fours + '×4, ' + b.sixes + '×6)');
+          });
+        }
+        const topBowl = inn.bowlers.slice().sort((a, b) => b.wickets - a.wickets || a.runs - b.runs).slice(0, 3);
+        if (topBowl.length) {
+          lines.push('*Bowling:*');
+          topBowl.forEach(bw => {
+            lines.push('• ' + bw.name + ': *' + bw.wickets + '/' + bw.runs + '* (' + fmtOvers(bw.balls) + ' ov)');
+          });
+        }
+        lines.push('');
+        lines.push('_Scored on TCP Live Cricket_');
+        return lines.join('\n');
+      }
+
+      function buildWhatsAppFull(m) {
+        const lines = [];
+        lines.push('🏏 *TAMARIND CRICKET PLAYERS (TCP)*');
+        lines.push('*' + m.title + '* (' + m.oversLimit + ' ov)');
+        lines.push('_' + m.venue + ' • ' + m.date + '_');
+        if (m.result) lines.push('🏆 *' + m.result + '*');
+        m.innings.forEach((inn, idx) => {
+          if (idx === 1 && m.currentInnings === 0 && inn.balls === 0 && inn.runs === 0) return;
+          lines.push('━━━━━━━━━━━━━━━━━━');
+          lines.push('*' + (idx === 0 ? '1st' : '2nd') + ' Inn — ' + inn.battingTeam + ': ' + inn.runs + '/' + inn.wickets + '* (' + fmtOvers(inn.balls) + ' ov)');
+          inn.batters.forEach(b => {
+            lines.push('• ' + b.name + ': *' + b.runs + (b.out ? '' : '✱') + '* (' + b.balls + 'b) ' + (b.out ? '_' + b.dismissal + '_' : '_not out_'));
+          });
+          const exTot = inn.extras.wd + inn.extras.nb + inn.extras.b + inn.extras.lb;
+          lines.push('Extras: ' + exTot + ' (wd ' + inn.extras.wd + ', nb ' + inn.extras.nb + ', b ' + inn.extras.b + ', lb ' + inn.extras.lb + ')');
+          lines.push('*Bowling:*');
+          inn.bowlers.forEach(bw => {
+            lines.push('• ' + bw.name + ': ' + fmtOvers(bw.balls) + '-' + bw.maidens + '-' + bw.runs + '-' + bw.wickets);
+          });
+        });
+        return lines.join('\n');
+      }
+
+      function formatWaHtml(txt) {
+        return esc(txt)
+          .replace(/\*([^*]+)\*/g, '<strong>$1</strong>')
+          .replace(/_([^_]+)_/g, '<em>$1</em>')
+          .replace(/\n/g, '<br>');
+      }
+
+      function drawShareCanvas(m) {
+        const canvas = document.getElementById('share-scorecard-canvas');
+        if (!canvas || !m) return;
+        const ctx = canvas.getContext('2d');
+        const W = 1080, H = 1350;
+        canvas.width = W; canvas.height = H;
+
+        const grad = ctx.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, '#0b1120');
+        grad.addColorStop(0.5, '#0f172a');
+        grad.addColorStop(1, '#064e3b');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        ctx.fillStyle = '#34d399';
+        ctx.font = 'bold 34px sans-serif';
+        ctx.fillText('TAMARIND CRICKET PLAYERS (TCP)', 70, 95);
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = 'bold 52px sans-serif';
+        ctx.fillText(m.title.slice(0, 32), 70, 165);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '28px sans-serif';
+        ctx.fillText(m.venue + '  •  ' + m.date, 70, 215);
+
+        const drawInnBox = (inn, y) => {
+          ctx.fillStyle = 'rgba(17, 24, 39, 0.85)';
+          ctx.fillRect(70, y, W - 140, 180);
+          ctx.strokeStyle = 'rgba(52, 211, 153, 0.35)';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(70, y, W - 140, 180);
+
+          ctx.fillStyle = '#cbd5e1';
+          ctx.font = 'bold 34px sans-serif';
+          ctx.fillText(inn.battingTeam, 105, y + 65);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 68px sans-serif';
+          ctx.fillText(inn.runs + '/' + inn.wickets, 105, y + 145);
+
+          ctx.fillStyle = '#34d399';
+          ctx.font = 'bold 36px sans-serif';
+          ctx.fillText('(' + fmtOvers(inn.balls) + ' / ' + m.oversLimit + ' ov)', 390, y + 140);
+        };
+
+        drawInnBox(m.innings[0], 265);
+        drawInnBox(m.innings[1], 475);
+
+        if (m.result) {
+          ctx.fillStyle = '#fbbf24';
+          ctx.font = 'bold 38px sans-serif';
+          ctx.fillText('🏆 ' + m.result, 70, 725);
+        }
+
+        const inn = m.innings[m.currentInnings];
+        ctx.fillStyle = '#34d399';
+        ctx.font = 'bold 30px sans-serif';
+        ctx.fillText('TOP PERFORMERS (' + inn.battingTeam + ')', 70, 810);
+
+        let y = 865;
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '30px sans-serif';
+        inn.batters.slice().sort((a, b) => b.runs - a.runs).slice(0, 4).forEach(b => {
+          ctx.fillText(b.name + ': ' + b.runs + (b.out ? '' : '*') + ' (' + b.balls + 'b, ' + b.fours + 'x4, ' + b.sixes + 'x6)', 70, y);
+          y += 50;
+        });
+
+        y += 30;
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = 'bold 30px sans-serif';
+        ctx.fillText('TOP BOWLERS', 70, y);
+        y += 50;
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '30px sans-serif';
+        inn.bowlers.slice().sort((a, b) => b.wickets - a.wickets || a.runs - b.runs).slice(0, 3).forEach(bw => {
+          ctx.fillText(bw.name + ': ' + bw.wickets + '/' + bw.runs + ' (' + fmtOvers(bw.balls) + ' ov)', 70, y);
+          y += 50;
+        });
+
+        ctx.fillStyle = '#64748b';
+        ctx.font = '24px sans-serif';
+        ctx.fillText('Scored live with Tamarind Cricket Players (TCP)', 70, H - 55);
+      }
+
+      /* ======================== UI RENDERING ======================== */
+      function updateHeader() {
+        const pill = document.getElementById('sync-status-pill');
+        const pillText = document.getElementById('sync-status-text');
+        if (pill && pillText) {
+          if (state.syncState === 'cloud') {
+            pill.className = 'sync-pill sync-cloud';
+            pillText.textContent = 'Live Cloud';
+          } else if (state.syncState === 'syncing') {
+            pill.className = 'sync-pill sync-working';
+            pillText.textContent = 'Syncing...';
+          } else {
+            pill.className = 'sync-pill sync-local';
+            pillText.textContent = 'Local Mode';
+          }
+        }
+
+        const authBtn = document.getElementById('auth-header-btn');
+        const authTxt = document.getElementById('auth-header-text');
+        if (authBtn && authTxt) {
+          if (state.mode === 'local') {
+            authBtn.className = 'auth-pill-btn auth-pill-admin';
+            authTxt.textContent = 'Local Admin';
+          } else if (isAdmin()) {
+            authBtn.className = 'auth-pill-btn auth-pill-admin';
+            authTxt.textContent = 'Admin ✓';
+          } else if (state.user) {
+            authBtn.className = 'auth-pill-btn auth-pill-viewer';
+            authTxt.textContent = 'Signed In';
+          } else {
+            authBtn.className = 'auth-pill-btn auth-pill-viewer';
+            authTxt.textContent = 'Admin Login';
+          }
+        }
+
+        const admin = isAdmin();
+        document.getElementById('nav-setup').classList.toggle('hidden', !admin);
+        document.getElementById('nav-admins').classList.toggle('hidden', !(admin && state.mode === 'cloud'));
+        document.getElementById('nav-history-count').textContent = String(state.matches.length);
+
+        ['live', 'scorecard', 'history', 'setup', 'admins'].forEach(t => {
+          const el = document.getElementById('nav-' + t);
+          if (el) el.classList.toggle('active', state.currentTab === t);
+        });
+      }
+
+      function pillClass(lbl) {
+        if (lbl.startsWith('W') && !lbl.startsWith('Wd')) return 'pill-wicket';
+        if (lbl === '4') return 'pill-four';
+        if (lbl === '6') return 'pill-six';
+        if (lbl === '0') return 'pill-dot';
+        if (lbl.includes('Wd') || lbl.includes('Nb') || lbl.includes('B')) return 'pill-extra';
+        return 'pill-run';
+      }
+
+      function renderLiveView() {
+        const m = getActiveMatch();
+        const admin = isAdmin();
+        if (!m) {
+          return `
+            <div class="card card-pad text-center stack">
+              <div style="font-size:38px;">🏏</div>
+              <div class="font-extrabold" style="font-size:17px;">No Active Match Yet</div>
+              <div class="text-sm muted">
+                ${admin ? 'Start a new TCP match or load a demo T20 chase to begin scoring.' : 'Waiting for a TCP Admin to start the live match.'}
+              </div>
+              ${admin ? `
+                <div class="row" style="justify-content:center; margin-top:6px;">
+                  <button type="button" class="btn btn-primary" data-action="nav" data-tab="setup">+ New Match</button>
+                  <button type="button" class="btn btn-subtle" data-action="load-demo">Load Demo Match</button>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }
+
+        const inn = m.innings[m.currentInnings];
+        const i1 = m.innings[0];
+        const striker = inn.batters[inn.strikerIdx] || { name: '—', runs: 0, balls: 0, fours: 0, sixes: 0 };
+        const nonStriker = inn.batters[inn.nonStrikerIdx] || { name: '—', runs: 0, balls: 0, fours: 0, sixes: 0 };
+        const bowler = inn.bowlers[inn.bowlerIdx] || { name: '—', balls: 0, maidens: 0, runs: 0, wickets: 0 };
+        const exTot = inn.extras.wd + inn.extras.nb + inn.extras.b + inn.extras.lb;
+
+        let statusBadge = '<span class="badge badge-live"><span class="live-dot"></span>LIVE</span>';
+        if (m.status === 'break') statusBadge = '<span class="badge badge-break">INNINGS BREAK</span>';
+        if (m.status === 'completed') statusBadge = '<span class="badge badge-done">COMPLETED</span>';
+
+        let chaseHtml = '';
+        if (m.currentInnings === 1 && m.status === 'live') {
+          const need = Math.max(0, (i1.runs + 1) - inn.runs);
+          const rem = Math.max(0, (m.oversLimit * 6) - inn.balls);
+          chaseHtml = `<span class="target-pill">Need ${need} in ${rem}b • RRR ${calcRR(need, rem)}</span>`;
+        }
+
+        let claimBanner = '';
+        if (state.mode === 'cloud' && state.user && !state.primaryAdmin) {
+          claimBanner = `
+            <div class="banner banner-amber">
+              <div class="text-xs font-bold">No Primary Admin set yet. Claim ownership for ${esc(state.user.email)}?</div>
+              <button type="button" class="btn btn-xs btn-primary" data-action="claim-admin">Claim Primary Admin</button>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="stack">
+            ${claimBanner}
+            ${!admin ? `<div class="banner banner-sky"><span class="text-xs font-bold">Viewer Mode (Read-Only) — Scores update automatically in real time.</span></div>` : ''}
+
+            <div class="scoreboard">
+              <div class="sb-top">
+                <div class="sb-match-title">${esc(m.title)} • ${esc(m.venue)}</div>
+                <div class="row">
+                  ${statusBadge}
+                  <button type="button" class="btn btn-xs btn-wa" data-action="open-share" data-id="${m.id}">WhatsApp</button>
+                  ${admin ? `<button type="button" class="btn btn-xs btn-subtle" data-action="open-edit" data-id="${m.id}">Edit</button>` : ''}
+                </div>
+              </div>
+              <div class="sb-main">
+                <div>
+                  <div class="sb-team">${esc(inn.battingTeam)} <span class="text-xs muted">(${m.currentInnings === 0 ? '1st' : '2nd'} Inn)</span></div>
+                  <div class="sb-score-line">
+                    <span class="sb-score">${inn.runs}/${inn.wickets}</span>
+                    <span class="sb-overs">(${fmtOvers(inn.balls)} / ${m.oversLimit} ov)</span>
+                  </div>
+                </div>
+                <div class="sb-crr-box">
+                  <div class="sb-crr-label">CRR</div>
+                  <div class="sb-crr-val">${calcRR(inn.runs, inn.balls)}</div>
+                </div>
+              </div>
+              <div class="sb-footer">
+                <span>${m.currentInnings === 1 ? `${esc(i1.battingTeam)}: ${i1.runs}/${i1.wickets} (${fmtOvers(i1.balls)})` : `Toss: ${esc(m.tossWinner)} opted to ${m.tossDecision}`}</span>
+                ${chaseHtml}
+              </div>
+            </div>
+
+            ${m.status === 'break' && admin ? `
+              <div class="banner banner-amber">
+                <div class="text-sm font-bold">1st Innings Complete! Target: ${i1.runs + 1}</div>
+                <button type="button" class="btn btn-sm btn-primary" data-action="start-inn2">Start 2nd Innings</button>
+              </div>
+            ` : ''}
+
+            ${m.status === 'completed' ? `
+              <div class="banner banner-emerald">
+                <div class="text-sm font-extrabold text-emerald">🏆 ${esc(m.result || computeResult(m))}</div>
+                <button type="button" class="btn btn-xs btn-wa" data-action="open-share" data-id="${m.id}">Share Result</button>
+              </div>
+            ` : ''}
+
+            <div class="info-grid">
+              <div class="info-pill">
+                <span class="info-pill-label">Partnership</span>
+                <span class="info-pill-val">${inn.partnershipRuns} <span>(${inn.partnershipBalls}b)</span></span>
+              </div>
+              <div class="info-pill">
+                <span class="info-pill-label">Extras</span>
+                <span class="info-pill-val">${exTot} <span>(wd ${inn.extras.wd}, nb ${inn.extras.nb})</span></span>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Batter</th>
+                      <th class="num">R</th><th class="num">B</th><th class="num">4s</th><th class="num">6s</th><th class="num">SR</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="striker-row">
+                      <td>
+                        <div class="player-cell">
+                          <span class="striker-dot"></span>
+                          ${admin ? `<button type="button" class="player-name-btn" data-action="rename-player" data-role="striker">${esc(striker.name)} *</button>` : `<span class="player-name">${esc(striker.name)} *</span>`}
+                        </div>
+                      </td>
+                      <td class="num font-extrabold">${striker.runs}</td>
+                      <td class="num muted">${striker.balls}</td>
+                      <td class="num muted">${striker.fours}</td>
+                      <td class="num muted">${striker.sixes}</td>
+                      <td class="num muted">${calcSR(striker.runs, striker.balls)}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="player-cell">
+                          <span class="nonstriker-dot"></span>
+                          ${admin ? `<button type="button" class="player-name-btn" data-action="rename-player" data-role="nonstriker">${esc(nonStriker.name)}</button>` : `<span class="player-name">${esc(nonStriker.name)}</span>`}
+                        </div>
+                      </td>
+                      <td class="num font-bold">${nonStriker.runs}</td>
+                      <td class="num muted">${nonStriker.balls}</td>
+                      <td class="num muted">${nonStriker.fours}</td>
+                      <td class="num muted">${nonStriker.sixes}</td>
+                      <td class="num muted">${calcSR(nonStriker.runs, nonStriker.balls)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="table-wrap" style="border-top:1px solid var(--border);">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Bowler</th>
+                      <th class="num">O</th><th class="num">M</th><th class="num">R</th><th class="num">W</th><th class="num">Eco</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="row-between">
+                          ${admin ? `<button type="button" class="player-name-btn" data-action="rename-player" data-role="bowler">${esc(bowler.name)}</button>` : `<span class="player-name">${esc(bowler.name)}</span>`}
+                          ${admin && m.status === 'live' ? `<button type="button" class="btn btn-xs btn-subtle" data-action="change-bowler">Change</button>` : ''}
+                        </div>
+                      </td>
+                      <td class="num">${fmtOvers(bowler.balls)}</td>
+                      <td class="num muted">${bowler.maidens}</td>
+                      <td class="num">${bowler.runs}</td>
+                      <td class="num font-extrabold text-emerald">${bowler.wickets}</td>
+                      <td class="num muted">${calcRR(bowler.runs, bowler.balls)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="over-strip">
+                <span class="over-strip-label">This Over</span>
+                <div class="ball-pills">
+                  ${inn.currentOverBalls.length ? inn.currentOverBalls.map(b => `<span class="ball-pill ${pillClass(b)}">${esc(b)}</span>`).join('') : '<span class="text-xs muted">Waiting for ball...</span>'}
+                </div>
+              </div>
+            </div>
+
+            ${admin && m.status === 'live' ? `
+              <div class="keypad-card">
+                <div class="keypad-runs">
+                  <button type="button" class="key-run" data-action="score" data-type="run" data-runs="0">0</button>
+                  <button type="button" class="key-run" data-action="score" data-type="run" data-runs="1">1</button>
+                  <button type="button" class="key-run" data-action="score" data-type="run" data-runs="2">2</button>
+                  <button type="button" class="key-run" data-action="score" data-type="run" data-runs="3">3</button>
+                  <button type="button" class="key-run key-four" data-action="score" data-type="run" data-runs="4">4</button>
+                  <button type="button" class="key-run key-six" data-action="score" data-type="run" data-runs="6">6</button>
+                </div>
+                <div class="keypad-extras">
+                  <button type="button" class="key-extra" data-action="open-extra" data-type="wd">WD</button>
+                  <button type="button" class="key-extra" data-action="open-extra" data-type="nb">NB</button>
+                  <button type="button" class="key-extra key-bye" data-action="open-extra" data-type="b">B</button>
+                  <button type="button" class="key-extra key-bye" data-action="open-extra" data-type="lb">LB</button>
+                  <button type="button" class="key-extra key-out" data-action="open-wicket">OUT</button>
+                </div>
+                <div class="keypad-utils">
+                  <button type="button" class="btn btn-sm btn-subtle" data-action="swap-strike">⇄ Swap Strike</button>
+                  <button type="button" class="btn btn-sm btn-subtle" data-action="undo">↩ Undo</button>
+                  <button type="button" class="btn btn-sm btn-wa-soft" data-action="open-share" data-id="${m.id}">Share WA</button>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      function renderScorecardView() {
+        const m = getActiveMatch();
+        if (!m) return `<div class="card card-pad text-center muted text-sm">No match selected.</div>`;
+        const inn = m.innings[state.scorecardInn] || m.innings[0];
+        const exTot = inn.extras.wd + inn.extras.nb + inn.extras.b + inn.extras.lb;
+        const admin = isAdmin();
+
+        return `
+          <div class="stack">
+            <div class="row-between">
+              <div class="font-extrabold text-sm">${esc(m.title)}</div>
+              <div class="row">
+                <button type="button" class="btn btn-xs btn-wa" data-action="open-share" data-id="${m.id}">WhatsApp</button>
+                ${admin ? `<button type="button" class="btn btn-xs btn-subtle" data-action="open-edit" data-id="${m.id}">Edit</button>` : ''}
+              </div>
+            </div>
+            <div class="seg-tabs seg-tabs-2">
+              <button type="button" class="seg-tab ${state.scorecardInn === 0 ? 'active' : ''}" data-action="sc-inn" data-idx="0">1st: ${esc(m.innings[0].battingTeam)} (${m.innings[0].runs}/${m.innings[0].wickets})</button>
+              <button type="button" class="seg-tab ${state.scorecardInn === 1 ? 'active' : ''}" data-action="sc-inn" data-idx="1">2nd: ${esc(m.innings[1].battingTeam)} (${m.innings[1].runs}/${m.innings[1].wickets})</button>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <span class="card-header-title">Batting — ${esc(inn.battingTeam)}</span>
+                <span class="font-extrabold text-emerald">${inn.runs}/${inn.wickets} (${fmtOvers(inn.balls)} ov)</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Batter</th><th class="num">R</th><th class="num">B</th><th class="num">4s</th><th class="num">6s</th><th class="num">SR</th></tr></thead>
+                  <tbody>
+                    ${inn.batters.map(b => `
+                      <tr>
+                        <td>
+                          <div class="player-name">${esc(b.name)}${b.out ? '' : ' *'}</div>
+                          <div class="player-dismissal">${b.out ? esc(b.dismissal || 'out') : 'not out'}</div>
+                        </td>
+                        <td class="num font-extrabold">${b.runs}</td>
+                        <td class="num muted">${b.balls}</td>
+                        <td class="num muted">${b.fours}</td>
+                        <td class="num muted">${b.sixes}</td>
+                        <td class="num muted">${calcSR(b.runs, b.balls)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+              <div class="card-pad text-xs muted" style="border-top:1px solid var(--border);">
+                <strong>Extras:</strong> ${exTot} (wd ${inn.extras.wd}, nb ${inn.extras.nb}, b ${inn.extras.b}, lb ${inn.extras.lb})
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><span class="card-header-title">Bowling — ${esc(inn.bowlingTeam)}</span></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Bowler</th><th class="num">O</th><th class="num">M</th><th class="num">R</th><th class="num">W</th><th class="num">Eco</th></tr></thead>
+                  <tbody>
+                    ${inn.bowlers.map(bw => `
+                      <tr>
+                        <td class="player-name">${esc(bw.name)}</td>
+                        <td class="num">${fmtOvers(bw.balls)}</td>
+                        <td class="num muted">${bw.maidens}</td>
+                        <td class="num">${bw.runs}</td>
+                        <td class="num font-extrabold text-emerald">${bw.wickets}</td>
+                        <td class="num muted">${calcRR(bw.runs, bw.balls)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            ${inn.fow.length ? `
+              <div class="card card-pad">
+                <div class="card-header-title" style="margin-bottom:6px;">Fall of Wickets</div>
+                <div class="text-xs muted">${inn.fow.map(esc).join(' • ')}</div>
+              </div>
+            ` : ''}
+
+            ${inn.oversLog.length ? `
+              <div class="card">
+                <div class="card-header"><span class="card-header-title">Over-by-Over Summary</span></div>
+                <div class="card-pad stack-sm">
+                  ${inn.oversLog.map(o => `
+                    <div class="row-between" style="border-bottom:1px solid var(--border); padding-bottom:7px;">
+                      <div>
+                        <div class="text-xs font-extrabold">Over ${o.over} <span class="muted">(${esc(o.bowler)})</span></div>
+                        <div class="ball-pills-wrap" style="margin-top:4px;">${o.balls.map(b => `<span class="ball-pill ${pillClass(b)}">${esc(b)}</span>`).join('')}</div>
+                      </div>
+                      <div class="font-extrabold text-emerald">${o.runs} runs</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      function renderHistoryView() {
+        const admin = isAdmin();
+        const q = state.historySearch.trim().toLowerCase();
+        const list = state.matches.filter(m => {
+          if (state.historyFilter === 'active' && m.status === 'completed') return false;
+          if (state.historyFilter === 'completed' && m.status !== 'completed') return false;
+          if (q) {
+            const hay = (m.title + ' ' + m.teamA + ' ' + m.teamB + ' ' + m.venue).toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+
+        return `
+          <div class="stack">
+            <div class="card card-pad stack-sm">
+              <div class="row-between">
+                <div class="font-extrabold text-sm">Match History (${state.matches.length})</div>
+                <div class="row">
+                  <button type="button" class="btn btn-xs btn-subtle" data-action="export-json">Export JSON</button>
+                  ${admin ? `<button type="button" class="btn btn-xs btn-subtle" data-action="import-json">Import</button>` : ''}
+                </div>
+              </div>
+              <input type="text" id="history-search-input" class="field-input field-input-sm" placeholder="Search team, venue, or match..." value="${esc(state.historySearch)}" />
+              <div class="row-wrap">
+                <button type="button" class="filter-chip ${state.historyFilter === 'all' ? 'active' : ''}" data-action="hist-filter" data-val="all">All</button>
+                <button type="button" class="filter-chip ${state.historyFilter === 'active' ? 'active' : ''}" data-action="hist-filter" data-val="active">Active</button>
+                <button type="button" class="filter-chip ${state.historyFilter === 'completed' ? 'active' : ''}" data-action="hist-filter" data-val="completed">Completed</button>
+              </div>
+            </div>
+
+            ${list.length ? list.map(m => `
+              <div class="card card-pad stack-sm">
+                <div class="row-between">
+                  <div>
+                    <div class="font-extrabold text-sm">${esc(m.title)}</div>
+                    <div class="text-xs muted">${esc(m.venue)} • ${esc(m.date)} • ${m.oversLimit} ov</div>
+                  </div>
+                  <span class="badge ${m.status === 'completed' ? 'badge-done' : 'badge-live'}">${m.status.toUpperCase()}</span>
+                </div>
+                <div class="text-sm font-bold">
+                  ${esc(m.innings[0].battingTeam)}: ${m.innings[0].runs}/${m.innings[0].wickets} (${fmtOvers(m.innings[0].balls)})<br>
+                  ${esc(m.innings[1].battingTeam)}: ${m.innings[1].runs}/${m.innings[1].wickets} (${fmtOvers(m.innings[1].balls)})
+                </div>
+                ${m.result ? `<div class="text-xs font-extrabold text-emerald">🏆 ${esc(m.result)}</div>` : ''}
+                <div class="row-wrap">
+                  <button type="button" class="btn btn-xs btn-primary" data-action="open-match" data-id="${m.id}">${m.status === 'completed' ? 'View Card' : 'Open Live'}</button>
+                  <button type="button" class="btn btn-xs btn-wa-soft" data-action="open-share" data-id="${m.id}">WhatsApp</button>
+                  ${admin ? `<button type="button" class="btn btn-xs btn-subtle" data-action="open-edit" data-id="${m.id}">Edit Details</button>` : ''}
+                  ${admin ? `<button type="button" class="btn btn-xs btn-rose" data-action="confirm-delete" data-id="${m.id}">Delete</button>` : ''}
+                </div>
+              </div>
+            `).join('') : `<div class="card card-pad text-center muted text-sm">No matches found.</div>`}
+          </div>
+        `;
+      }
+
+      function renderSetupView() {
+        return `
+          <div class="stack">
+            <div class="banner banner-emerald">
+              <div>
+                <div class="font-extrabold text-sm text-emerald">Tamarind Cricket Players (TCP)</div>
+                <div class="text-xs muted">Create a new live match or test with a demo T20 chase</div>
+              </div>
+              <button type="button" class="btn btn-xs btn-subtle" data-action="load-demo">Load Demo</button>
+            </div>
+            <form id="new-match-form" class="card card-pad stack">
+              <div>
+                <label class="field-label">Match Title / Series</label>
+                <input name="title" class="field-input" value="TCP Weekend T20" required />
+              </div>
+              <div class="form-grid-2">
+                <div><label class="field-label">Venue</label><input name="venue" class="field-input" value="Tamarind Ground" /></div>
+                <div><label class="field-label">Date</label><input name="date" type="date" class="field-input" value="${todayStr()}" /></div>
+              </div>
+              <div>
+                <label class="field-label">Overs per Innings</label>
+                <div class="row-wrap" style="margin-bottom:6px;">
+                  ${[5, 10, 20, 50].map(ov => `<button type="button" class="pill-choice" data-action="set-overs" data-ov="${ov}">${ov} Ov</button>`).join('')}
+                </div>
+                <input id="setup-overs" name="oversLimit" type="number" min="1" max="90" class="field-input" value="20" required />
+              </div>
+              <div class="form-grid-2">
+                <div><label class="field-label">Team A</label><input id="setup-teamA" name="teamA" class="field-input" value="TCP Strikers" required /></div>
+                <div><label class="field-label">Team B</label><input id="setup-teamB" name="teamB" class="field-input" value="TCP Warriors" required /></div>
+              </div>
+              <div class="form-grid-2">
+                <div>
+                  <label class="field-label">Toss Winner</label>
+                  <select name="tossWinner" class="field-select">
+                    <option value="teamA">Team A</option>
+                    <option value="teamB">Team B</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label">Opted To</label>
+                  <select name="tossDecision" class="field-select">
+                    <option value="bat">Bat</option>
+                    <option value="bowl">Bowl</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid-3">
+                <div><label class="field-label">Striker</label><input name="striker" class="field-input" value="Opener 1" required /></div>
+                <div><label class="field-label">Non-Striker</label><input name="nonStriker" class="field-input" value="Opener 2" required /></div>
+                <div><label class="field-label">Opening Bowler</label><input name="bowler" class="field-input" value="Bowler 1" required /></div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-full">Start Live Match</button>
+            </form>
+          </div>
+        `;
+      }
+
+      function renderAdminsView() {
+        return `
+          <div class="stack">
+            <div class="card card-pad stack">
+              <div class="font-extrabold text-sm">TCP Admin Management</div>
+              <div class="text-xs muted">Admins can start matches, score balls, edit details, and delete history. Everyone else gets live Read-Only Viewer access.</div>
+              <div class="info-pill">
+                <span class="info-pill-label">Primary Admin</span>
+                <span class="info-pill-val text-emerald">${esc(state.primaryAdmin || 'Not claimed')}</span>
+              </div>
+              <form id="add-admin-form" class="row">
+                <input id="new-admin-email" type="email" class="field-input field-input-sm" placeholder="teammate@gmail.com" required />
+                <button type="submit" class="btn btn-sm btn-primary">Add Admin</button>
+              </form>
+              <div class="stack-sm">
+                ${state.admins.length ? state.admins.map(em => `
+                  <div class="info-pill">
+                    <span class="text-xs font-bold">${esc(em)}</span>
+                    ${em !== state.primaryAdmin ? `<button type="button" class="btn btn-xs btn-rose" data-action="remove-admin" data-email="${esc(em)}">Remove</button>` : '<span class="badge badge-live">OWNER</span>'}
+                  </div>
+                `).join('') : '<div class="text-xs muted">No additional admins added yet.</div>'}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function render() {
+        updateHeader();
+        const main = document.getElementById('app-main');
+        if (!main) return;
+        if (state.currentTab === 'live') main.innerHTML = renderLiveView();
+        else if (state.currentTab === 'scorecard') main.innerHTML = renderScorecardView();
+        else if (state.currentTab === 'history') main.innerHTML = renderHistoryView();
+        else if (state.currentTab === 'setup') main.innerHTML = renderSetupView();
+        else if (state.currentTab === 'admins') main.innerHTML = renderAdminsView();
+      }
+
+      /* ======================== MODALS ======================== */
+      function openModal(html, wide) {
+        const bd = document.getElementById('modal-backdrop');
+        const box = document.getElementById('modal-box');
+        box.className = 'modal-box' + (wide ? ' wide' : '');
+        box.innerHTML = html;
+        bd.classList.add('open');
+      }
+      function closeModal() {
+        document.getElementById('modal-backdrop').classList.remove('open');
+      }
+
+      function openAuthModal() {
+        if (state.mode === 'local') {
+          openModal(`
+            <div class="modal-head"><span class="font-extrabold">Local Mode</span><button type="button" class="icon-btn" data-action="close-modal">✕</button></div>
+            <div class="modal-scroll text-sm muted">Cloud sync is currently offline or unavailable. All matches are saved locally on this device.</div>
+            <div class="modal-foot"><button type="button" class="btn btn-primary btn-full" data-action="close-modal">OK</button></div>
+          `);
+          return;
+        }
+        if (state.user) {
+          openModal(`
+            <div class="modal-head"><span class="font-extrabold">Account</span><button type="button" class="icon-btn" data-action="close-modal">✕</button></div>
+            <div class="modal-scroll stack-sm">
+              <div class="text-sm">Signed in as <strong>${esc(state.user.email)}</strong></div>
+              <div class="text-xs muted">Role: <strong class="${isAdmin() ? 'text-emerald' : 'text-amber'}">${isAdmin() ? 'TCP Admin' : 'Viewer (Read-Only)'}</strong></div>
+              ${!state.primaryAdmin ? `<button type="button" class="btn btn-primary btn-full" data-action="claim-admin">Claim Primary Admin</button>` : ''}
+            </div>
+            <div class="modal-foot">
+              <button type="button" class="btn btn-rose btn-full" data-action="sign-out">Sign Out</button>
+            </div>
+          `);
+          return;
+        }
+        openModal(`
+          <div class="modal-head"><span class="font-extrabold">TCP Admin Login</span><button type="button" class="icon-btn" data-action="close-modal">✕</button></div>
+          <div class="modal-scroll stack">
+            <button type="button" class="btn btn-google btn-full" data-action="google-signin">Continue with Google</button>
+            <div class="text-center text-xs muted">— or use Email & Password —</div>
+            <form id="email-auth-form" class="stack-sm">
+              <input id="auth-email" type="email" class="field-input" placeholder="Email address" required />
+              <input id="auth-pass" type="password" class="field-input" placeholder="Password (min 6 chars)" required />
+              <button type="submit" class="btn btn-primary btn-full">${state.authFormMode === 'signin' ? 'Sign In' : 'Create Account'}</button>
+            </form>
+            <button type="button" class="text-xs text-sky text-center" data-action="toggle-auth-mode">
+              ${state.authFormMode === 'signin' ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
+            </button>
+          </div>
+        `);
+      }
+
+      function openExtraModal(type) {
+        const names = { wd: 'Wide', nb: 'No Ball', b: 'Bye', lb: 'Leg Bye' };
+        openModal(`
+          <div class="modal-head"><span class="font-extrabold">${names[type]} — Additional Runs</span><button type="button" class="icon-btn" data-action="close-modal">✕</button></div>
+          <div class="modal-scroll">
+            <div class="keypad-runs">
+              ${[0, 1, 2, 3, 4, 6].map(r => `<button type="button" class="key-run" data-action="commit-extra" data-type="${type}" data-runs="${r}">${r}</button>`).join('')}
+            </div>
+          </div>
+        `);
+      }
+
+      function openWicketModal() {
+        openModal(`
+          <div class="modal-head"><span class="font-extrabold text-rose">Wicket Fell!</span><button type="button" class="icon-btn" data-action="close-modal">✕</button></div>
+          <form id="wicket-form" class="modal-scroll stack-sm">
+            <div>
+              <label class="field-label">Dismissal Type</label>
+              <select name="kind" class="field-select">
+                <option value="Caught">Caught</option>
+                <option value="Bowled">Bowled</option>
+                <option value="LBW">LBW</option>
+                <option value="Run Out">Run Out</option>
+                <option value="Stumped">Stumped</option>
+              </select>
+            </div>
+            <div><label class="field-label">Dismissal Details (optional)</label><input name="details" class="field-input" placeholder="e.g. c Kiran b Karthik" /></div>
+            <div><label class="field-label">Runs Scored on Ball</label><input name="runs" type="number" min="0" max="6" value="0" class="field-input" /></div>
+            <div><label class="field-label">Next Batter Name</label><input name="newBatter" class="field-input" placeholder="New Batter" required /></div>
+            <button type="submit" class="btn btn-rose btn-full">Confirm Wicket</button>
+          </form>
+        `);
+      }
+
+      function openBowlerModal() {
+        const m = getActiveMatch();
+        if (!m) return;
+        const inn = m.innings[m.currentInnings];
+        openModal(`
+          <div class="modal-head"><span class="font-extrabold">Select / Add Bowler</span><button type="button" class="icon-btn" data-action="close-modal">✕</button></div>
+          <div class="modal-scroll stack-sm">
+            ${inn.bowlers.map((bw, idx) => `
+              <button type="button" class="btn btn-subtle btn-full" data-action="pick-bowler" data-idx="${idx}">${esc(bw.name)} (${fmtOvers(bw.balls)} ov, ${bw.wickets}/${bw.runs})</button>
+            `).join('')}
+            <form id="new-bowler-form" class="row" style="margin-top:6px;">
+              <input id="new-bowler-name" class="field-input field-input-sm" placeholder="New bowler name" required />
+              <button type="submit" class="btn btn-sm btn-primary">Add</button>
+            </form>
+          </div>
+        `);
+      }
+
+      function openShareModal(matchId) {
+        const m = state.matches.find(x => x.id === matchId) || getActiveMatch();
+        if (!m) return;
+        state.shareMatchId = m.id;
+        const txt = state.shareTab === 'full' ? buildWhatsAppFull(m) : buildWhatsAppQuick(m);
+        const waUrl = 'https://wa.me/?text=' + encodeURIComponent(txt);
+
+        openModal(`
+          <div class="modal-head"><span class="font-extrabold">Share to WhatsApp</span><button type="button" class="icon-btn" data-action="close-modal">✕</button></div>
+          <div class="modal-scroll stack-sm">
+            <div class="seg-tabs">
+              <button type="button" class="seg-tab ${state.shareTab === 'quick' ? 'active' : ''}" data-action="share-tab" data-tab="quick">Quick Update</button>
+              <button type="button" class="seg-tab ${state.shareTab === 'full' ? 'active' : ''}" data-action="share-tab" data-tab="full">Full Card</button>
+              <button type="button" class="seg-tab ${state.shareTab === 'image' ? 'active' : ''}" data-action="share-tab" data-tab="image">HD Image</button>
+            </div>
+            ${state.shareTab === 'image' ? `
+              <div class="canvas-stage"><canvas id="share-scorecard-canvas"></canvas></div>
+            ` : `
+              <div class="wa-wallpaper">
+                <div class="wa-bubble-wrap">
+                  <div class="wa-bubble">
+                    ${formatWaHtml(txt)}
+                    <div class="wa-meta">Now ✓✓</div>
+                  </div>
+                </div>
+              </div>
+            `}
+          </div>
+          <div class="modal-foot">
+            ${state.shareTab === 'image' ? `
+              <button type="button" class="btn btn-primary btn-full" data-action="download-png">Download HD PNG</button>
+            ` : `
+              <button type="button" class="btn btn-subtle" style="flex:1;" data-action="copy-share">Copy Text</button>
+              <a href="${waUrl}" target="_blank" rel="noopener" class="btn btn-wa" style="flex:1;">Open WhatsApp</a>
+            `}
+          </div>
+        `, true);
+
+        if (state.shareTab === 'image') {
+          setTimeout(() => drawShareCanvas(m), 30);
+        }
+      }
+
+      function renderEditModal() {
+        const d = state.editDraft;
+        if (!d) return;
+        const inn = d.innings[state.editInn];
+        let body = '';
+        if (state.editTab === 'info') {
+          body = `
+            <div class="stack-sm">
+              <div><label class="field-label">Match Title</label><input class="field-input field-input-sm" data-edit="title" value="${esc(d.title)}" /></div>
+              <div class="form-grid-2">
+                <div><label class="field-label">Venue</label><input class="field-input field-input-sm" data-edit="venue" value="${esc(d.venue)}" /></div>
+                <div><label class="field-label">Date</label><input type="date" class="field-input field-input-sm" data-edit="date" value="${esc(d.date)}" /></div>
+              </div>
+              <div class="form-grid-3">
+                <div><label class="field-label">Overs</label><input type="number" class="field-input field-input-sm" data-edit="oversLimit" value="${d.oversLimit}" /></div>
+                <div><label class="field-label">Team A</label><input class="field-input field-input-sm" data-edit="teamA" value="${esc(d.teamA)}" /></div>
+                <div><label class="field-label">Team B</label><input class="field-input field-input-sm" data-edit="teamB" value="${esc(d.teamB)}" /></div>
+              </div>
+              <div class="form-grid-2">
+                <div>
+                  <label class="field-label">Status</label>
+                  <select class="field-select field-input-sm" data-edit="status">
+                    <option value="live" ${d.status === 'live' ? 'selected' : ''}>Live</option>
+                    <option value="break" ${d.status === 'break' ? 'selected' : ''}>Innings Break</option>
+                    <option value="completed" ${d.status === 'completed' ? 'selected' : ''}>Completed</option>
+                  </select>
+                </div>
+                <div><label class="field-label">Result</label><input class="field-input field-input-sm" data-edit="result" value="${esc(d.result)}" /></div>
+              </div>
+            </div>
+          `;
+        } else if (state.editTab === 'batters') {
+          body = `
+            <div class="stack-sm">
+              <div class="seg-tabs seg-tabs-2">
+                <button type="button" class="seg-tab ${state.editInn === 0 ? 'active' : ''}" data-action="edit-inn" data-idx="0">1st: ${esc(d.innings[0].battingTeam)}</button>
+                <button type="button" class="seg-tab ${state.editInn === 1 ? 'active' : ''}" data-action="edit-inn" data-idx="1">2nd: ${esc(d.innings[1].battingTeam)}</button>
+              </div>
+              <div class="form-grid-3">
+                <div><label class="mini-label">Total Runs</label><input type="number" class="field-input field-input-sm" data-inn-edit="runs" value="${inn.runs}" /></div>
+                <div><label class="mini-label">Wickets</label><input type="number" class="field-input field-input-sm" data-inn-edit="wickets" value="${inn.wickets}" /></div>
+                <div><label class="mini-label">Balls</label><input type="number" class="field-input field-input-sm" data-inn-edit="balls" value="${inn.balls}" /></div>
+              </div>
+              ${inn.batters.map((b, idx) => `
+                <div class="edit-player-card">
+                  <div class="row-between">
+                    <input class="field-input field-input-sm" data-bat-idx="${idx}" data-bat-field="name" value="${esc(b.name)}" />
+                    <button type="button" class="btn btn-xs btn-rose" data-action="edit-del-bat" data-idx="${idx}">✕</button>
+                  </div>
+                  <div class="edit-stats-grid-4">
+                    <div><label class="mini-label">R</label><input type="number" class="field-input field-input-sm" data-bat-idx="${idx}" data-bat-field="runs" value="${b.runs}" /></div>
+                    <div><label class="mini-label">B</label><input type="number" class="field-input field-input-sm" data-bat-idx="${idx}" data-bat-field="balls" value="${b.balls}" /></div>
+                    <div><label class="mini-label">4s</label><input type="number" class="field-input field-input-sm" data-bat-idx="${idx}" data-bat-field="fours" value="${b.fours}" /></div>
+                    <div><label class="mini-label">6s</label><input type="number" class="field-input field-input-sm" data-bat-idx="${idx}" data-bat-field="sixes" value="${b.sixes}" /></div>
+                  </div>
+                </div>
+              `).join('')}
+              <button type="button" class="btn btn-xs btn-emerald-soft" data-action="edit-add-bat">+ Add Batter</button>
+            </div>
+          `;
+        } else {
+          body = `
+            <div class="stack-sm">
+              <div class="seg-tabs seg-tabs-2">
+                <button type="button" class="seg-tab ${state.editInn === 0 ? 'active' : ''}" data-action="edit-inn" data-idx="0">1st Inn Bowlers</button>
+                <button type="button" class="seg-tab ${state.editInn === 1 ? 'active' : ''}" data-action="edit-inn" data-idx="1">2nd Inn Bowlers</button>
+              </div>
+              ${inn.bowlers.map((bw, idx) => `
+                <div class="edit-player-card">
+                  <div class="row-between">
+                    <input class="field-input field-input-sm" data-bowl-idx="${idx}" data-bowl-field="name" value="${esc(bw.name)}" />
+                    <button type="button" class="btn btn-xs btn-rose" data-action="edit-del-bowl" data-idx="${idx}">✕</button>
+                  </div>
+                  <div class="edit-stats-grid-4">
+                    <div><label class="mini-label">Balls</label><input type="number" class="field-input field-input-sm" data-bowl-idx="${idx}" data-bowl-field="balls" value="${bw.balls}" /></div>
+                    <div><label class="mini-label">M</label><input type="number" class="field-input field-input-sm" data-bowl-idx="${idx}" data-bowl-field="maidens" value="${bw.maidens}" /></div>
+                    <div><label class="mini-label">R</label><input type="number" class="field-input field-input-sm" data-bowl-idx="${idx}" data-bowl-field="runs" value="${bw.runs}" /></div>
+                    <div><label class="mini-label">W</label><input type="number" class="field-input field-input-sm" data-bowl-idx="${idx}" data-bowl-field="wickets" value="${bw.wickets}" /></div>
+                  </div>
+                </div>
+              `).join('')}
+              <button type="button" class="btn btn-xs btn-emerald-soft" data-action="edit-add-bowl">+ Add Bowler</button>
+            </div>
+          `;
+        }
+
+        openModal(`
+          <div class="modal-head"><span class="font-extrabold">Edit Match Details</span><button type="button" class="icon-btn" data-action="close-modal">✕</button></div>
+          <div class="modal-scroll stack-sm">
+            <div class="seg-tabs">
+              <button type="button" class="seg-tab ${state.editTab === 'info' ? 'active' : ''}" data-action="edit-tab" data-tab="info">Match Info</button>
+              <button type="button" class="seg-tab ${state.editTab === 'batters' ? 'active' : ''}" data-action="edit-tab" data-tab="batters">Batters</button>
+              <button type="button" class="seg-tab ${state.editTab === 'bowlers' ? 'active' : ''}" data-action="edit-tab" data-tab="bowlers">Bowlers</button>
+            </div>
+            ${body}
+          </div>
+          <div class="modal-foot">
+            <button type="button" class="btn btn-subtle" style="flex:1;" data-action="close-modal">Cancel</button>
+            <button type="button" class="btn btn-primary" style="flex:1;" data-action="save-edit">Save Changes</button>
+          </div>
+        `, true);
+      }
+
+      /* ======================== EVENT DELEGATION ======================== */
+      document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+
+        if (action === 'nav') {
+          state.currentTab = btn.dataset.tab;
+          render();
+        } else if (action === 'close-modal') {
           closeModal();
+        } else if (action === 'open-auth') {
+          openAuthModal();
+        } else if (action === 'toggle-auth-mode') {
+          state.authFormMode = state.authFormMode === 'signin' ? 'signup' : 'signin';
+          openAuthModal();
+        } else if (action === 'google-signin') {
+          if (!fb.auth) return;
+          const provider = new firebase.auth.GoogleAuthProvider();
+          try {
+            await fb.auth.signInWithPopup(provider);
+            closeModal();
+            showToast('Signed in with Google!');
+          } catch (err) {
+            if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+              fb.auth.signInWithRedirect(provider);
+            } else {
+              showToast(err.message || 'Google Sign-In failed', true);
+            }
+          }
+        } else if (action === 'sign-out') {
+          if (!fb.auth) return;
+          await fb.auth.signOut();
+          closeModal();
+          state.currentTab = 'live';
           render();
           showToast('Signed out (Viewer Mode)');
-        } catch (err) { showToast('Sign out failed', true); }
-      } else if (action === 'claim-primary-admin') {
-// ... existing code ... -->
-      if (form.id === 'email-auth-form') {
-        if (!fb.auth) return;
-        const email = document.getElementById('auth-email').value.trim();
-        const pass = document.getElementById('auth-pass').value;
-        try {
-          if (state.authMode === 'signup') {
-            await fb.auth.createUserWithEmailAndPassword(email, pass);
-            showToast('Account created & signed in!');
-          } else {
-            await fb.auth.signInWithEmailAndPassword(email, pass);
-            showToast('Signed in!');
-          }
+        } else if (action === 'claim-admin') {
+          if (!state.user || !state.user.email) return;
+          const em = state.user.email.toLowerCase();
+          await saveAdminsCloud(em, [em]);
           closeModal();
-        } catch (err) {
-          showToast(err.message || 'Authentication failed', true);
+          showToast('You are now Primary Admin!');
+        } else if (action === 'remove-admin') {
+          const em = btn.dataset.email;
+          const next = state.admins.filter(a => a !== em);
+          await saveAdminsCloud(state.primaryAdmin, next);
+          showToast('Admin removed');
+        } else if (action === 'load-demo') {
+          const m = createDemoMatch();
+          state.matches.unshift(m);
+          state.activeMatchId = m.id;
+          state.currentTab = 'live';
+          await persistState();
+          render();
+          showToast('Demo match loaded!');
+        } else if (action === 'set-overs') {
+          const inp = document.getElementById('setup-overs');
+          if (inp) inp.value = btn.dataset.ov;
+        } else if (action === 'score') {
+          scoreBall(btn.dataset.type, Number(btn.dataset.runs));
+        } else if (action === 'open-extra') {
+          openExtraModal(btn.dataset.type);
+        } else if (action === 'commit-extra') {
+          closeModal();
+          scoreBall(btn.dataset.type, Number(btn.dataset.runs));
+        } else if (action === 'open-wicket') {
+          openWicketModal();
+        } else if (action === 'undo') {
+          undoLastBall();
+        } else if (action === 'swap-strike') {
+          const m = getActiveMatch();
+          if (!m || !isAdmin()) return;
+          const inn = m.innings[m.currentInnings];
+          const tmp = inn.strikerIdx; inn.strikerIdx = inn.nonStrikerIdx; inn.nonStrikerIdx = tmp;
+          await persistState();
+          render();
+        } else if (action === 'change-bowler') {
+          openBowlerModal();
+        } else if (action === 'pick-bowler') {
+          const m = getActiveMatch();
+          if (!m) return;
+          m.innings[m.currentInnings].bowlerIdx = Number(btn.dataset.idx);
+          closeModal();
+          await persistState();
+          render();
+        } else if (action === 'start-inn2') {
+          const m = getActiveMatch();
+          if (!m || !isAdmin()) return;
+          m.currentInnings = 1;
+          m.status = 'live';
+          await persistState();
+          render();
+          showToast('2nd Innings started!');
+        } else if (action === 'rename-player') {
+          const m = getActiveMatch();
+          if (!m || !isAdmin()) return;
+          const inn = m.innings[m.currentInnings];
+          const role = btn.dataset.role;
+          const cur = role === 'striker' ? inn.batters[inn.strikerIdx].name : role === 'nonstriker' ? inn.batters[inn.nonStrikerIdx].name : inn.bowlers[inn.bowlerIdx].name;
+          openModal(`
+            <div class="modal-head"><span class="font-extrabold">Rename Player</span><button type="button" class="icon-btn" data-action="close-modal">✕</button></div>
+            <form id="rename-form" data-role="${role}" class="modal-scroll stack-sm">
+              <input name="newName" class="field-input" value="${esc(cur)}" required />
+              <button type="submit" class="btn btn-primary btn-full">Save Name</button>
+            </form>
+          `);
+        } else if (action === 'sc-inn') {
+          state.scorecardInn = Number(btn.dataset.idx);
+          render();
+        } else if (action === 'hist-filter') {
+          state.historyFilter = btn.dataset.val;
+          render();
+        } else if (action === 'open-match') {
+          state.activeMatchId = btn.dataset.id;
+          const m = getActiveMatch();
+          state.currentTab = m && m.status === 'completed' ? 'scorecard' : 'live';
+          await persistState();
+          render();
+        } else if (action === 'confirm-delete') {
+          const id = btn.dataset.id;
+          openModal(`
+            <div class="modal-head"><span class="font-extrabold text-rose">Delete Match?</span><button type="button" class="icon-btn" data-action="close-modal">✕</button></div>
+            <div class="modal-scroll text-sm muted">This will permanently remove this match from TCP history.</div>
+            <div class="modal-foot">
+              <button type="button" class="btn btn-subtle" style="flex:1;" data-action="close-modal">Cancel</button>
+              <button type="button" class="btn btn-rose" style="flex:1;" data-action="do-delete" data-id="${id}">Delete</button>
+            </div>
+          `);
+        } else if (action === 'do-delete') {
+          const id = btn.dataset.id;
+          state.matches = state.matches.filter(m => m.id !== id);
+          if (state.activeMatchId === id) state.activeMatchId = state.matches[0] ? state.matches[0].id : null;
+          closeModal();
+          await persistState();
+          render();
+          showToast('Match deleted');
+        } else if (action === 'open-share') {
+          state.shareTab = 'quick';
+          openShareModal(btn.dataset.id);
+        } else if (action === 'share-tab') {
+          state.shareTab = btn.dataset.tab;
+          openShareModal(state.shareMatchId);
+        } else if (action === 'copy-share') {
+          const m = state.matches.find(x => x.id === state.shareMatchId) || getActiveMatch();
+          const txt = state.shareTab === 'full' ? buildWhatsAppFull(m) : buildWhatsAppQuick(m);
+          const ta = document.createElement('textarea');
+          ta.value = txt; document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta);
+          showToast('Copied for WhatsApp!');
+        } else if (action === 'download-png') {
+          const canvas = document.getElementById('share-scorecard-canvas');
+          if (!canvas) return;
+          const a = document.createElement('a');
+          a.download = 'TCP_Scorecard.png';
+          a.href = canvas.toDataURL('image/png');
+          a.click();
+          showToast('PNG downloaded!');
+        } else if (action === 'open-edit') {
+          const m = state.matches.find(x => x.id === btn.dataset.id) || getActiveMatch();
+          if (!m || !isAdmin()) return;
+          state.editDraft = clone(m);
+          state.editTab = 'info';
+          state.editInn = m.currentInnings || 0;
+          renderEditModal();
+        } else if (action === 'edit-tab') {
+          state.editTab = btn.dataset.tab;
+          renderEditModal();
+        } else if (action === 'edit-inn') {
+          state.editInn = Number(btn.dataset.idx);
+          renderEditModal();
+        } else if (action === 'edit-add-bat') {
+          state.editDraft.innings[state.editInn].batters.push({ name: 'New Batter', runs: 0, balls: 0, fours: 0, sixes: 0, out: false, dismissal: '' });
+          renderEditModal();
+        } else if (action === 'edit-del-bat') {
+          const arr = state.editDraft.innings[state.editInn].batters;
+          if (arr.length > 1) arr.splice(Number(btn.dataset.idx), 1);
+          renderEditModal();
+        } else if (action === 'edit-add-bowl') {
+          state.editDraft.innings[state.editInn].bowlers.push({ name: 'New Bowler', balls: 0, maidens: 0, runs: 0, wickets: 0 });
+          renderEditModal();
+        } else if (action === 'edit-del-bowl') {
+          const arr = state.editDraft.innings[state.editInn].bowlers;
+          if (arr.length > 1) arr.splice(Number(btn.dataset.idx), 1);
+          renderEditModal();
+        } else if (action === 'save-edit') {
+          const d = state.editDraft;
+          if (!d) return;
+          const idx = state.matches.findIndex(x => x.id === d.id);
+          if (idx >= 0) state.matches[idx] = d;
+          closeModal();
+          await persistState();
+          render();
+          showToast('Match updated!');
+        } else if (action === 'export-json') {
+          const blob = new Blob([JSON.stringify(state.matches, null, 2)], { type: 'application/json' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'tcp_cricket_backup.json';
+          a.click();
+          showToast('Backup exported!');
+        } else if (action === 'import-json') {
+          document.getElementById('import-json-input').click();
         }
-      } else if (form.id === 'add-admin-form') {
-// ... existing code ... -->
+      });
+
+      document.addEventListener('input', (e) => {
+        const el = e.target;
+        if (el.id === 'history-search-input') {
+          state.historySearch = el.value;
+          render();
+          const f = document.getElementById('history-search-input');
+          if (f) { f.focus(); f.setSelectionRange(f.value.length, f.value.length); }
+        } else if (state.editDraft) {
+          if (el.dataset.edit) {
+            state.editDraft[el.dataset.edit] = el.type === 'number' ? Number(el.value) : el.value;
+          } else if (el.dataset.innEdit) {
+            state.editDraft.innings[state.editInn][el.dataset.innEdit] = Number(el.value) || 0;
+          } else if (el.dataset.batIdx !== undefined) {
+            const b = state.editDraft.innings[state.editInn].batters[Number(el.dataset.batIdx)];
+            if (b) b[el.dataset.batField] = el.type === 'number' ? (Number(el.value) || 0) : el.value;
+          } else if (el.dataset.bowlIdx !== undefined) {
+            const bw = state.editDraft.innings[state.editInn].bowlers[Number(el.dataset.bowlIdx)];
+            if (bw) bw[el.dataset.bowlField] = el.type === 'number' ? (Number(el.value) || 0) : el.value;
+          }
+        }
+      });
+
+      document.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        if (form.id === 'new-match-form') {
+          const fd = new FormData(form);
+          const teamA = fd.get('teamA').trim(), teamB = fd.get('teamB').trim();
+          const m = createNewMatch({
+            title: fd.get('title').trim(),
+            venue: fd.get('venue').trim(),
+            date: fd.get('date'),
+            oversLimit: Number(fd.get('oversLimit')),
+            teamA, teamB,
+            tossWinner: fd.get('tossWinner') === 'teamA' ? teamA : teamB,
+            tossDecision: fd.get('tossDecision'),
+            striker: fd.get('striker').trim(),
+            nonStriker: fd.get('nonStriker').trim(),
+            bowler: fd.get('bowler').trim()
+          });
+          state.matches.unshift(m);
+          state.activeMatchId = m.id;
+          state.currentTab = 'live';
+          await persistState();
+          render();
+          showToast('Match started!');
+        } else if (form.id === 'wicket-form') {
+          const fd = new FormData(form);
+          closeModal();
+          scoreBall('wicket', Number(fd.get('runs')), {
+            kind: fd.get('kind'),
+            dismissalText: fd.get('details').trim() || fd.get('kind'),
+            newBatter: fd.get('newBatter').trim()
+          });
+        } else if (form.id === 'new-bowler-form') {
+          const name = document.getElementById('new-bowler-name').value.trim();
+          const m = getActiveMatch();
+          if (m && name) {
+            const inn = m.innings[m.currentInnings];
+            inn.bowlers.push({ name, balls: 0, maidens: 0, runs: 0, wickets: 0 });
+            inn.bowlerIdx = inn.bowlers.length - 1;
+            closeModal();
+            await persistState();
+            render();
+          }
+        } else if (form.id === 'rename-form') {
+          const name = new FormData(form).get('newName').trim();
+          const m = getActiveMatch();
+          if (m && name) {
+            const inn = m.innings[m.currentInnings];
+            const role = form.dataset.role;
+            if (role === 'striker') inn.batters[inn.strikerIdx].name = name;
+            else if (role === 'nonstriker') inn.batters[inn.nonStrikerIdx].name = name;
+            else inn.bowlers[inn.bowlerIdx].name = name;
+            closeModal();
+            await persistState();
+            render();
+          }
+        } else if (form.id === 'email-auth-form') {
+          if (!fb.auth) return;
+          const em = document.getElementById('auth-email').value.trim();
+          const pw = document.getElementById('auth-pass').value;
+          try {
+            if (state.authFormMode === 'signup') await fb.auth.createUserWithEmailAndPassword(em, pw);
+            else await fb.auth.signInWithEmailAndPassword(em, pw);
+            closeModal();
+            showToast('Signed in!');
+          } catch (err) {
+            showToast(err.message || 'Auth failed', true);
+          }
+        } else if (form.id === 'add-admin-form') {
+          const em = document.getElementById('new-admin-email').value.trim().toLowerCase();
+          if (em && !state.admins.includes(em)) {
+            await saveAdminsCloud(state.primaryAdmin, state.admins.concat([em]));
+            document.getElementById('new-admin-email').value = '';
+            showToast('Admin added!');
+          }
+        }
+      });
+
+      document.getElementById('import-json-input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const imported = JSON.parse(reader.result);
+            if (Array.isArray(imported)) {
+              state.matches = imported.concat(state.matches);
+              await persistState();
+              render();
+              showToast('History imported!');
+            }
+          } catch (err) { showToast('Invalid JSON file', true); }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      /* ======================== BOOTSTRAP ======================== */
+      loadLocal();
+      render();
+      initFirebaseAsync();
+    })();
+  </script>
+</body>
+</html>
