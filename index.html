@@ -869,12 +869,23 @@
      *    Leave as-is to run in Local Mode or use environment-injected config.
      *************************************************************************/
     const FIREBASE_CONFIG = {
-      apiKey: "PASTE_YOUR_API_KEY",
-      authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
-      projectId: "PASTE_YOUR_PROJECT_ID",
-      storageBucket: "PASTE_YOUR_PROJECT.appspot.com",
-      messagingSenderId: "PASTE_YOUR_SENDER_ID",
-      appId: "PASTE_YOUR_APP_ID"
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDgiZi07d4CT-YDixcVx2JQwL2HioGx93A",
+  authDomain: "tcp-cricket.firebaseapp.com",
+  projectId: "tcp-cricket",
+  storageBucket: "tcp-cricket.firebasestorage.app",
+  messagingSenderId: "556014037332",
+  appId: "1:556014037332:web:c95deb36613e33168dc0c1"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
     };
 
     const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'tcp-cricket-club';
