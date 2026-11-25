@@ -1,7 +1,6 @@
 /* =========================================================
-   TCP Cricket — Stats, Awards & Leaderboards Add-On
-   Standalone module: drop <script src="stats.js?v=1"></script>
-   right before </body> in index.html
+   TCP Cricket — Stats, Awards & Leaderboards Add-On (v2)
+   Injects "🏆 Stats" directly into the top navigation bar.
    ========================================================= */
 (function () {
   if (window.__TCP_STATS_LOADED__) return;
@@ -10,26 +9,26 @@
   // --- 1. Inject Styles ---
   const style = document.createElement('style');
   style.textContent = `
-    #tcp-stats-fab {
-      position: fixed;
-      bottom: 20px;
-      right: 16px;
-      z-index: 9990;
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: #fff;
-      border: none;
-      border-radius: 999px;
-      padding: 11px 16px;
-      font-weight: 700;
-      font-size: 14px;
-      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-      cursor: pointer;
-      display: flex;
+    #tcp-stats-nav-btn {
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-family: system-ui, -apple-system, sans-serif;
+      gap: 5px;
+      background: transparent;
+      color: #cbd5e1;
+      border: none;
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-family: inherit;
     }
-    #tcp-stats-fab:active { transform: scale(0.96); }
+    #tcp-stats-nav-btn:hover, #tcp-stats-nav-btn:active {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
 
     #tcp-stats-overlay {
       position: fixed;
@@ -287,20 +286,17 @@
     const out = [];
     const seen = new Set();
 
-    // 1. Scan localStorage
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         const raw = localStorage.getItem(key);
         if (!raw || (raw[0] !== '{' && raw[0] !== '[')) continue;
         try {
-          const parsed = JSON.parse(raw);
-          extractMatchesFromAny(parsed, out, seen);
+          extractMatchesFromAny(JSON.parse(raw), out, seen);
         } catch (_) {}
       }
     } catch (_) {}
 
-    // 2. Scan Firestore if Firebase compat is active
     try {
       if (window.firebase && firebase.apps && firebase.apps.length && firebase.firestore) {
         const db = firebase.firestore();
@@ -324,7 +320,6 @@
       }
     } catch (_) {}
 
-    // Sort newest first
     out.sort((a, b) => {
       const da = new Date(a.date || a.createdAt || a.updatedAt || 0).getTime();
       const db = new Date(b.date || b.createdAt || b.updatedAt || 0).getTime();
@@ -368,13 +363,10 @@
   function extractFielder(dismissalText, explicitFielder) {
     if (explicitFielder) return normName(explicitFielder);
     const txt = String(dismissalText || '');
-    // Matches "c Ravi b Ram" or "c Ravi"
     let m = txt.match(/\bc\s+([A-Za-z0-9 ._-]+?)(?:\s+b\s+|$)/i);
     if (m && m[1] && !/^&\s*b$/i.test(m[1].trim())) return normName(m[1]);
-    // Matches "st Ravi b Ram"
     m = txt.match(/\bst\s+([A-Za-z0-9 ._-]+?)(?:\s+b\s+|$)/i);
     if (m && m[1]) return normName(m[1]);
-    // Matches "run out (Kiran)"
     m = txt.match(/run\s*out\s*\(([^)]+)\)/i);
     if (m && m[1]) return normName(m[1]);
     return '';
@@ -390,29 +382,10 @@
       const key = name.toLowerCase();
       if (!players[key]) {
         players[key] = {
-          name,
-          matches: new Set(),
-          innings: 0,
-          notOuts: 0,
-          runs: 0,
-          balls: 0,
-          fours: 0,
-          sixes: 0,
-          hs: 0,
-          hsNotOut: false,
-          thirties: 0,
-          fifties: 0,
-          bowlInnings: 0,
-          bowlBalls: 0,
-          bowlRuns: 0,
-          wickets: 0,
-          maidens: 0,
-          threeW: 0,
-          bestW: -1,
-          bestR: 999,
-          catches: 0,
-          mvps: 0,
-          totalMvpPts: 0
+          name, matches: new Set(), innings: 0, notOuts: 0, runs: 0, balls: 0,
+          fours: 0, sixes: 0, hs: 0, hsNotOut: false, thirties: 0, fifties: 0,
+          bowlInnings: 0, bowlBalls: 0, bowlRuns: 0, wickets: 0, maidens: 0,
+          threeW: 0, bestW: -1, bestR: 999, catches: 0, mvps: 0, totalMvpPts: 0
         };
       }
       return players[key];
@@ -430,9 +403,7 @@
       };
 
       (match.innings || []).forEach(inn => {
-        // Batting
-        const batters = toArray(inn.batters || inn.batsmen || inn.batting);
-        batters.forEach(bt => {
+        toArray(inn.batters || inn.batsmen || inn.batting).forEach(bt => {
           const runs = Number(bt.runs ?? bt.r ?? 0);
           const balls = Number(bt.balls ?? bt.b ?? 0);
           const fours = Number(bt.fours ?? bt['4s'] ?? 0);
@@ -458,14 +429,12 @@
           if (runs >= 50) p.fifties += 1;
           else if (runs >= 30) p.thirties += 1;
 
-          // MVP batting points
           let batPts = runs + fours * 1 + sixes * 2;
           if (runs >= 50) batPts += 15;
           else if (runs >= 30) batPts += 8;
           if (balls >= 10 && (runs / balls) * 100 >= 150) batPts += 6;
           addPts(p.name, batPts, `${runs}${!isOut ? '*' : ''}(${balls})`);
 
-          // Fielding credit
           const fielder = extractFielder(howOut, bt.fielder);
           if (fielder) {
             const fp = getP(fielder);
@@ -477,9 +446,7 @@
           }
         });
 
-        // Bowling
-        const bowlers = toArray(inn.bowlers || inn.bowling);
-        bowlers.forEach(bw => {
+        toArray(inn.bowlers || inn.bowling).forEach(bw => {
           const bBalls = parseOversToBalls(bw);
           const bRuns = Number(bw.runs ?? bw.r ?? 0);
           const wkts = Number(bw.wickets ?? bw.w ?? 0);
@@ -501,7 +468,6 @@
             p.bestR = bRuns;
           }
 
-          // MVP bowling points
           let bowlPts = wkts * 22 + maidens * 6;
           if (wkts >= 3) bowlPts += 12;
           const econ = bBalls >= 6 ? (bRuns / (bBalls / 6)) : 99;
@@ -511,7 +477,6 @@
         });
       });
 
-      // Pick Match MVP
       const ranked = Object.values(mPts).sort((a, b) => b.pts - a.pts);
       if (ranked.length > 0) {
         const top = ranked[0];
@@ -558,12 +523,7 @@
     return matches;
   }
 
-  // --- 5. Build UI ---
-  const fab = document.createElement('button');
-  fab.id = 'tcp-stats-fab';
-  fab.innerHTML = '🏆 Stats';
-  document.body.appendChild(fab);
-
+  // --- 5. Build Overlay & Profile Modal ---
   const overlay = document.createElement('div');
   overlay.id = 'tcp-stats-overlay';
   overlay.innerHTML = `
@@ -599,6 +559,35 @@
   document.body.appendChild(profileModal);
 
   let latestStats = { players: [], matchAwards: [] };
+
+  async function openStats() {
+    overlay.classList.add('open');
+    await loadAllMatches();
+    render();
+  }
+
+  // --- 6. Mount "🏆 Stats" inside the Top Navigation Bar ---
+  function mountNavButton() {
+    if (document.getElementById('tcp-stats-nav-btn')) return;
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const historyBtn = buttons.find(b => /history/i.test(b.textContent) && !b.closest('#tcp-stats-overlay'));
+    const cardBtn = buttons.find(b => /\bcard\b/i.test(b.textContent) && !b.closest('#tcp-stats-overlay'));
+    const anchor = historyBtn || cardBtn;
+    if (!anchor || !anchor.parentElement) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'tcp-stats-nav-btn';
+    btn.type = 'button';
+    btn.innerHTML = '🏆 Stats';
+    btn.onclick = openStats;
+
+    // Insert right after History (or Card)
+    anchor.insertAdjacentElement('afterend', btn);
+  }
+
+  mountNavButton();
+  const observer = new MutationObserver(() => mountNavButton());
+  observer.observe(document.body, { childList: true, subtree: true });
 
   function openProfile(playerName) {
     const p = latestStats.players.find(x => x.name.toLowerCase() === playerName.toLowerCase());
@@ -765,14 +754,12 @@
 
     body.innerHTML = html;
 
-    // Bind player profile taps
     body.querySelectorAll('[data-player]').forEach(el => {
       const name = el.getAttribute('data-player');
       if (name) el.onclick = () => openProfile(name);
     });
   }
 
-  // --- 6. WhatsApp Leaderboard Share ---
   function shareWhatsApp() {
     const { players } = latestStats;
     if (!players.length) return;
@@ -796,16 +783,10 @@
       `📲 Live Scores: ${window.location.href.split('?')[0]}`
     ];
 
-    const text = lines.join('\n');
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    window.open('https://wa.me/?text=' + encodeURIComponent(lines.join('\n')), '_blank');
   }
 
   // --- 7. Events ---
-  fab.onclick = async () => {
-    overlay.classList.add('open');
-    await loadAllMatches();
-    render();
-  };
   document.getElementById('tcps-close').onclick = () => overlay.classList.remove('open');
   document.getElementById('tcps-refresh').onclick = async () => {
     await loadAllMatches();
